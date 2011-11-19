@@ -42,7 +42,8 @@ public class NigoriPasswordStoreTest {
 	}
 
 	@Test
-	public void testAddKey() throws IOException, NigoriCryptographyException {
+	public void testAddKey() throws IOException, NigoriCryptographyException,
+			PasswordStoreException {
 		NigoriPasswordStore nps = new NigoriPasswordStore(TEST_USERNAME,
 				TEST_PASSWORD, TEST_SERVER, TEST_SERVER_PORT,
 				TEST_SERVER_PREFIX);
@@ -67,7 +68,7 @@ public class NigoriPasswordStoreTest {
 
 	@Test
 	public void testKeyLinkedList() throws IOException,
-			NigoriCryptographyException {
+			NigoriCryptographyException, PasswordStoreException {
 		NigoriPasswordStore nps = new NigoriPasswordStore(TEST_USERNAME,
 				TEST_PASSWORD, TEST_SERVER, TEST_SERVER_PORT,
 				TEST_SERVER_PREFIX);
@@ -160,7 +161,7 @@ public class NigoriPasswordStoreTest {
 
 	@Test
 	public void testPasswordList2() throws IOException,
-			NigoriCryptographyException {
+			NigoriCryptographyException, PasswordStoreException {
 		NigoriPasswordStore nps = new NigoriPasswordStore("test", "test",
 				"localhost", 8888, "nigori");
 

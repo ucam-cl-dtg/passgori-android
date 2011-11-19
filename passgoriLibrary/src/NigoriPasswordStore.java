@@ -68,7 +68,8 @@ public class NigoriPasswordStore implements IPasswordStore {
 	}
 
 	@Override
-	public AbstractList<String> getAllStoredPasswordIds() {
+	public AbstractList<String> getAllStoredPasswordIds()
+			throws PasswordStoreException {
 		AbstractList<String> passwordIds = new ArrayList<String>();
 
 		byte[] response = null;
@@ -95,7 +96,7 @@ public class NigoriPasswordStore implements IPasswordStore {
 	}
 
 	@Override
-	public boolean removePassword(String aId) {
+	public boolean removePassword(String aId) throws PasswordStoreException {
 		try {
 			// Get Password's previous and next (if any)
 			final byte[] previousId = mNigoriStore.get(getPrevKey(aId)
@@ -123,17 +124,17 @@ public class NigoriPasswordStore implements IPasswordStore {
 						.delete(getNotesKey(aId).getBytes()));
 
 		} catch (UnsupportedEncodingException e) {
-			return false;
+			throw new PasswordStoreException(e.getMessage());
 		} catch (NigoriCryptographyException e) {
-			return false;
+			throw new PasswordStoreException(e.getMessage());
 		} catch (IOException e) {
-			return false;
+			throw new PasswordStoreException(e.getMessage());
 		}
 
 	}
 
 	@Override
-	public Password retrivePassword(String aId) {
+	public Password retrivePassword(String aId) throws PasswordStoreException {
 
 		byte[] username = null;
 		byte[] password = null;
@@ -143,11 +144,9 @@ public class NigoriPasswordStore implements IPasswordStore {
 			password = mNigoriStore.get(getPasswordKey(aId).getBytes());
 			notes = mNigoriStore.get(getNotesKey(aId).getBytes());
 		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+			throw new PasswordStoreException(e.getMessage());
 		} catch (NigoriCryptographyException e) {
-			e.printStackTrace();
-			return null;
+			throw new PasswordStoreException(e.getMessage());
 		}
 
 		if ((username != null) && (password != null) && (notes != null)) {
@@ -158,7 +157,8 @@ public class NigoriPasswordStore implements IPasswordStore {
 	}
 
 	@Override
-	public boolean storePassword(Password aPassword) {
+	public boolean storePassword(Password aPassword)
+			throws PasswordStoreException {
 		try {
 			final byte[] oldHeadBytes = mNigoriStore.get(getPassHeadKey()
 					.getBytes());
@@ -190,9 +190,9 @@ public class NigoriPasswordStore implements IPasswordStore {
 					.getBytes());
 
 		} catch (IOException e) {
-			return false;
+			throw new PasswordStoreException(e.getMessage());
 		} catch (NigoriCryptographyException e) {
-			return false;
+			throw new PasswordStoreException(e.getMessage());
 		}
 		return true;
 	}
@@ -202,16 +202,18 @@ public class NigoriPasswordStore implements IPasswordStore {
 	 * 
 	 * @param currentElement
 	 * @return
+	 * @throws PasswordStoreException
 	 */
-	private String getNextElement(final String currentElement) {
+	private String getNextElement(final String currentElement)
+			throws PasswordStoreException {
 		final String key = getNextKey(currentElement);
 		byte[] response = null;
 		try {
 			response = mNigoriStore.get(key.getBytes());
 		} catch (IOException e) {
-			return null;
+			throw new PasswordStoreException(e.getMessage());
 		} catch (NigoriCryptographyException e) {
-			return null;
+			throw new PasswordStoreException(e.getMessage());
 		}
 		if (response == null)
 			return null;
