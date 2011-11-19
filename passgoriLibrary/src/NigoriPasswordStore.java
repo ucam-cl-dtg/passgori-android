@@ -11,7 +11,10 @@ import com.google.nigori.client.NigoriDatastore;
  */
 
 /**
- * A Nigori Password Store
+ * A Nigori Password Store.
+ * 
+ * The passwords are kept in a double linked list on the nigori password store.
+ * Each user has associated a head of each list.
  * 
  * @author Miltiadis Allamanis
  * 
@@ -23,8 +26,14 @@ public class NigoriPasswordStore implements IPasswordStore {
 	 */
 	private final NigoriDatastore mNigoriStore;
 
+	/**
+	 * The username of the nigori password store
+	 */
 	private final String mUserName;
 
+	/**
+	 * Prefixes for storing keys.
+	 */
 	private static final String USERNAME_PREFIX = "_username";
 	private static final String PASSWORD_PREFIX = "_password";
 	private static final String NOTES_PREFIX = "_notes";
@@ -64,6 +73,7 @@ public class NigoriPasswordStore implements IPasswordStore {
 
 		byte[] response = null;
 		try {
+			// Try getting the head of the password list
 			response = mNigoriStore.get(getPassHeadKey().getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -72,11 +82,13 @@ public class NigoriPasswordStore implements IPasswordStore {
 		}
 
 		if (response != null) {
+			// a head exists, so retrieve the list!
 			String passHeadId = new String(response);
 
+			// recursively get all heads from the list
 			while (passHeadId != null) {
 				passwordIds.add(passHeadId);
-				passHeadId = getNextHead(passHeadId);
+				passHeadId = getNextElement(passHeadId);
 			}
 		}
 		return passwordIds;
@@ -85,10 +97,12 @@ public class NigoriPasswordStore implements IPasswordStore {
 	@Override
 	public boolean removePassword(String aId) {
 		try {
+			// Get Password's previous and next (if any)
 			final byte[] previousId = mNigoriStore.get(getPrevKey(aId)
 					.getBytes());
 			final byte[] nextId = mNigoriStore.get(getNextKey(aId).getBytes());
 
+			// Update neighboring linked-list items
 			if ((previousId != null) && (nextId != null)) {
 				mNigoriStore.put(getNextKey(new String(previousId)).getBytes(),
 						nextId);
@@ -107,6 +121,7 @@ public class NigoriPasswordStore implements IPasswordStore {
 			return (mNigoriStore.delete(getUsernameKey(aId).getBytes())
 					&& mNigoriStore.delete(getPasswordKey(aId).getBytes()) && mNigoriStore
 						.delete(getNotesKey(aId).getBytes()));
+
 		} catch (UnsupportedEncodingException e) {
 			return false;
 		} catch (NigoriCryptographyException e) {
@@ -182,8 +197,14 @@ public class NigoriPasswordStore implements IPasswordStore {
 		return true;
 	}
 
-	private String getNextHead(final String currentHead) {
-		final String key = getNextKey(currentHead);
+	/**
+	 * Returns the next element of the linked list, given the current element
+	 * 
+	 * @param currentElement
+	 * @return
+	 */
+	private String getNextElement(final String currentElement) {
+		final String key = getNextKey(currentElement);
 		byte[] response = null;
 		try {
 			response = mNigoriStore.get(key.getBytes());
@@ -197,30 +218,79 @@ public class NigoriPasswordStore implements IPasswordStore {
 		return new String(response);
 	}
 
+	/**
+	 * Returns the key which is used to store the next's password id.
+	 * 
+	 * @param passwordId
+	 *            the current password id
+	 * @return a string representing the key
+	 */
 	private final String getNextKey(final String passwordId) {
 		return mUserName + "_" + passwordId + NEXT_PREFIX;
 	}
 
+	/**
+	 * Returns the key which is used to store the note of the current password.
+	 * 
+	 * @param passwordId
+	 *            the current password id
+	 * @return a string representing the key
+	 */
 	private final String getNotesKey(final String passwordId) {
 		return mUserName + "_" + passwordId + NOTES_PREFIX;
 	}
 
+	/**
+	 * Returns the key which is used to store the password linked list head.
+	 * 
+	 * @return a string representing the key
+	 */
 	private final String getPassHeadKey() {
 		return mUserName + PASS_HEAD_PREFIX;
 	}
 
+	/**
+	 * Returns the key which is used to store the password of the current
+	 * password.
+	 * 
+	 * @param passwordId
+	 *            the current password id
+	 * @return a string representing the key
+	 */
 	private final String getPasswordKey(final String passwordId) {
 		return mUserName + "_" + passwordId + PASSWORD_PREFIX;
 	}
 
+	/**
+	 * Returns the key which is used to store the previous' password id.
+	 * 
+	 * @param passwordId
+	 *            the current password id
+	 * @return a string representing the key
+	 */
 	private final String getPrevKey(final String passwordId) {
 		return mUserName + "_" + passwordId + PREV_PREFIX;
 	}
 
+	/**
+	 * Returns the key which is used to store the username of the current
+	 * password.
+	 * 
+	 * @param passwordId
+	 *            the current password id
+	 * @return a string representing the key
+	 */
 	private final String getUsernameKey(final String passwordId) {
 		return mUserName + "_" + passwordId + USERNAME_PREFIX;
 	}
 
+	/**
+	 * Register the user.
+	 * 
+	 * @return
+	 * @throws IOException
+	 * @throws NigoriCryptographyException
+	 */
 	private boolean register() throws IOException, NigoriCryptographyException {
 		return mNigoriStore.register();
 	}
