@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Vector;
+import java.util.AbstractList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -170,7 +170,7 @@ public class NigoriPasswordStoreTest {
 			assertEquals(nps.getAllStoredPasswordIds().size(), i + 1);
 		}
 
-		Vector<String> list = nps.getAllStoredPasswordIds();
+		AbstractList<String> list = nps.getAllStoredPasswordIds();
 		for (int i = 0; i < 100; i++) {
 			assertTrue(list.contains("a" + i));
 		}
@@ -190,7 +190,7 @@ public class NigoriPasswordStoreTest {
 
 		for (int i = 0; i < 100; i++) {
 			assertTrue(nps.removePassword("a" + indexes[i]));
-			Vector<String> storedpwds = nps.getAllStoredPasswordIds();
+			AbstractList<String> storedpwds = nps.getAllStoredPasswordIds();
 			assertEquals(storedpwds.size(), (100 - i) - 1);
 			assertFalse(storedpwds.contains("a" + indexes[i]));
 		}
