@@ -1,5 +1,6 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -18,11 +19,19 @@ import com.google.nigori.client.NigoriDatastore;
  */
 
 /**
- * @author miltiadis
+ * Unit test for NigoriPasswordStore
+ * 
+ * @author Miltiadis Allamanis
  * 
  */
 public class NigoriPasswordStoreTest {
 	NigoriPasswordStore ps;
+
+	private final String TEST_USERNAME = "test";
+	private final String TEST_PASSWORD = "test";
+	private final String TEST_SERVER = "localhost";
+	private final int TEST_SERVER_PORT = 8888;
+	private final String TEST_SERVER_PREFIX = "nigori";
 
 	/**
 	 * @throws java.lang.Exception
@@ -34,8 +43,9 @@ public class NigoriPasswordStoreTest {
 
 	@Test
 	public void testAddKey() throws IOException, NigoriCryptographyException {
-		NigoriPasswordStore nps = new NigoriPasswordStore("test", "test",
-				"localhost", 8888, "nigori");
+		NigoriPasswordStore nps = new NigoriPasswordStore(TEST_USERNAME,
+				TEST_PASSWORD, TEST_SERVER, TEST_SERVER_PORT,
+				TEST_SERVER_PREFIX);
 
 		Password testPass = new Password("a", "bb", "ccc", "dddd");
 
@@ -48,18 +58,19 @@ public class NigoriPasswordStoreTest {
 		// assertFalse(nps.removePassword("bb")); TODO: Server API does not
 		// respond correctly
 		assertEquals(nps.getAllStoredPasswordIds().size(), 1);
-		assertEquals(nps.retrivePassword("bb"), null);
+		assertNull(nps.retrivePassword("bb"));
 
 		assertTrue(nps.removePassword("a"));
 		assertEquals(nps.getAllStoredPasswordIds().size(), 0);
-		assertEquals(nps.retrivePassword("a"), null);
+		assertNull(nps.retrivePassword("a"));
 	}
 
 	@Test
 	public void testKeyLinkedList() throws IOException,
 			NigoriCryptographyException {
-		NigoriPasswordStore nps = new NigoriPasswordStore("test", "test",
-				"localhost", 8888, "nigori");
+		NigoriPasswordStore nps = new NigoriPasswordStore(TEST_USERNAME,
+				TEST_PASSWORD, TEST_SERVER, TEST_SERVER_PORT,
+				TEST_SERVER_PREFIX);
 
 		Password testPass1 = new Password("a", "bb", "ccc", "dddd");
 		assertTrue(nps.storePassword(testPass1));
@@ -100,7 +111,7 @@ public class NigoriPasswordStoreTest {
 		assertTrue(nps.retrivePassword("a").getNotes().equals("dddd"));
 		assertTrue(nps.retrivePassword("c").getPassword().equals("eee"));
 		assertTrue(nps.retrivePassword("c").getNotes().equals("ffff"));
-		assertEquals(nps.retrivePassword("b"), null);
+		assertNull(nps.retrivePassword("b"));
 
 		assertTrue(nps.removePassword("c"));
 		assertEquals(nps.getAllStoredPasswordIds().size(), 1);
@@ -109,14 +120,14 @@ public class NigoriPasswordStoreTest {
 		assertFalse(nps.getAllStoredPasswordIds().contains("c"));
 		assertTrue(nps.retrivePassword("a").getPassword().equals("ccc"));
 		assertTrue(nps.retrivePassword("a").getNotes().equals("dddd"));
-		assertEquals(nps.retrivePassword("b"), null);
-		assertEquals(nps.retrivePassword("c"), null);
+		assertNull(nps.retrivePassword("b"));
+		assertNull(nps.retrivePassword("c"));
 
 		assertTrue(nps.removePassword("a"));
 		assertEquals(nps.getAllStoredPasswordIds().size(), 0);
-		assertEquals(nps.retrivePassword("c"), null);
-		assertEquals(nps.retrivePassword("b"), null);
-		assertEquals(nps.retrivePassword("a"), null);
+		assertNull(nps.retrivePassword("c"));
+		assertNull(nps.retrivePassword("b"));
+		assertNull(nps.retrivePassword("a"));
 
 	}
 
@@ -126,8 +137,9 @@ public class NigoriPasswordStoreTest {
 		NigoriDatastore mNigoriStore = null;
 
 		try {
-			mNigoriStore = new NigoriDatastore("localhost", 8888, "nigori",
-					"test", "test");
+			mNigoriStore = new NigoriDatastore(TEST_SERVER, TEST_SERVER_PORT,
+					TEST_SERVER_PREFIX, TEST_USERNAME, TEST_PASSWORD);
+
 		} catch (UnsupportedEncodingException e) {
 			fail(e.getMessage());
 		} catch (NigoriCryptographyException e) {
