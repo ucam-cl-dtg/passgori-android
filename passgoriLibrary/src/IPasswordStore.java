@@ -23,7 +23,7 @@ public interface IPasswordStore {
 	 * 
 	 * @param aId
 	 *            the id of the password
-	 * @return true if the password has been sucessfuly removed
+	 * @return true if the password has been successful removed
 	 */
 	public boolean removePassword(final String aId);
 
@@ -41,7 +41,7 @@ public interface IPasswordStore {
 	 * 
 	 * @param aPassword
 	 *            the password to store
-	 * @return true if the password has been stored sucessfully
+	 * @return true if the password has been stored successfully
 	 */
 	public boolean storePassword(final Password aPassword);
 }
