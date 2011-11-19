@@ -1,4 +1,4 @@
-import java.util.Vector;
+import java.util.AbstractList;
 
 /**
  * 
@@ -16,8 +16,15 @@ public interface IPasswordStore {
 	 * 
 	 * @return a vector containing the ids of stored passwords
 	 */
-	public Vector<String> getAllStoredPasswordIds();
+	public AbstractList<String> getAllStoredPasswordIds();
 
+	/**
+	 * Remove password from store.
+	 * 
+	 * @param aId
+	 *            the id of the password
+	 * @return true if the password has been sucessfuly removed
+	 */
 	public boolean removePassword(final String aId);
 
 	/**
