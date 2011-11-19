@@ -1,4 +1,4 @@
-import java.util.AbstractList;
+import java.util.List;
 
 /**
  * 
@@ -18,8 +18,7 @@ public interface IPasswordStore {
 	 * @throws PasswordStoreException
 	 *             when is unable to perform operation
 	 */
-	public AbstractList<String> getAllStoredPasswordIds()
-			throws PasswordStoreException;
+	public List<String> getAllStoredPasswordIds() throws PasswordStoreException;
 
 	/**
 	 * Remove password from store.

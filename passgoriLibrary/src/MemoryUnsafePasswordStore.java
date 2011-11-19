@@ -1,6 +1,6 @@
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,8 +30,7 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 	 * @see IPasswordStore#getAllStoredPasswordIds()
 	 */
 	@Override
-	public AbstractList<String> getAllStoredPasswordIds()
-			throws PasswordStoreException {
+	public List<String> getAllStoredPasswordIds() throws PasswordStoreException {
 		final Set<String> idSet = mPasswordStore.keySet();
 		return new ArrayList<String>(idSet);
 	}

@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
@@ -68,8 +69,7 @@ public class NigoriPasswordStore implements IPasswordStore {
 	}
 
 	@Override
-	public AbstractList<String> getAllStoredPasswordIds()
-			throws PasswordStoreException {
+	public List<String> getAllStoredPasswordIds() throws PasswordStoreException {
 		AbstractList<String> passwordIds = new ArrayList<String>();
 
 		byte[] response = null;
