@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Vector;
+import java.util.AbstractList;
+import java.util.ArrayList;
 
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
@@ -58,8 +59,8 @@ public class NigoriPasswordStore implements IPasswordStore {
 	}
 
 	@Override
-	public Vector<String> getAllStoredPasswordIds() {
-		Vector<String> passwordIds = new Vector<String>();
+	public AbstractList<String> getAllStoredPasswordIds() {
+		AbstractList<String> passwordIds = new ArrayList<String>();
 
 		byte[] response = null;
 		try {
