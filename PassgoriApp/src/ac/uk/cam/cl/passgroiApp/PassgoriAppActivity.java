@@ -77,7 +77,8 @@ public class PassgoriAppActivity extends Activity {
 
 					runOnUiThread(new UpdateListRunnable(adapter));
 				} else {
-					runOnUiThread(new InformFailureRunnable("No passwords"));
+					runOnUiThread(new InformFailureRunnable(
+							getString(R.string.noPasswordsError)));
 				}
 
 			} catch (final PasswordStoreException e) {
@@ -178,7 +179,7 @@ public class PassgoriAppActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.passwordListRefresh:
 			mWaitingLinearLayout.removeAllViews();
-			mWaitingText.setText("Refreshing...");
+			mWaitingText.setText(R.string.refreshing);
 			final LayoutParams params = new LayoutParams(
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
@@ -223,7 +224,7 @@ public class PassgoriAppActivity extends Activity {
 		if (!getApplicationContext().bindService(intent, mConnection,
 				Context.BIND_AUTO_CREATE)) {
 			mWaitingLinearLayout.removeAllViews();
-			mWaitingText.setText("Failed to Bind to Internal Service");
+			mWaitingText.setText(R.string.serviceBindError);
 			mWaitingLinearLayout.addView(mWaitingText);
 		}
 
