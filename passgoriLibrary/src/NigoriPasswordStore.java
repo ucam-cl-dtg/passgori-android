@@ -25,12 +25,18 @@ public class NigoriPasswordStore implements IPasswordStore {
 	/**
 	 * The Nigori client instance.
 	 */
-	private final NigoriDatastore mNigoriStore;
+	private NigoriDatastore mNigoriStore;
 
 	/**
 	 * The username of the nigori password store
 	 */
 	private final String mUserName;
+
+	private final String mServerPrefix;
+
+	private final String mServerURI;
+
+	private final int mPortNumber;
 
 	/**
 	 * Prefixes for storing keys.
@@ -43,7 +49,29 @@ public class NigoriPasswordStore implements IPasswordStore {
 	private static final String PASS_HEAD_PREFIX = "_passHead";
 
 	/**
-	 * Default Nigori Password Store example.
+	 * Constructor that creates the store but performs no authorization.
+	 * 
+	 * @param serverURI
+	 *            the URI of the server
+	 * @param portNumber
+	 *            the port number on the Nigori server
+	 * @param serverPrefix
+	 *            a server prefix
+	 * @throws IOException
+	 * @throws NigoriCryptographyException
+	 */
+	public NigoriPasswordStore(final String username, final String serverURI,
+			final int portNumber, final String serverPrefix)
+			throws IOException, NigoriCryptographyException {
+		mPortNumber = portNumber;
+		mServerPrefix = serverPrefix;
+		mServerURI = serverURI;
+		mUserName = username;
+	}
+
+	/**
+	 * Nigori Password Store Constructor, that automatically performs
+	 * authorization.
 	 * 
 	 * @param username
 	 *            the username of the Nigori server
@@ -62,10 +90,32 @@ public class NigoriPasswordStore implements IPasswordStore {
 			final String serverURI, final int portNumber,
 			final String serverPrefix) throws IOException,
 			NigoriCryptographyException {
-		mNigoriStore = new NigoriDatastore(serverURI, portNumber, serverPrefix,
-				username, password);
+
+		mPortNumber = portNumber;
+		mServerPrefix = serverPrefix;
+		mServerURI = serverURI;
 		mUserName = username;
-		register();
+
+	}
+
+	@Override
+	public boolean authorize(String username, String password)
+			throws PasswordStoreException {
+		boolean authenticated = false;
+		try {
+			mNigoriStore = new NigoriDatastore(mServerURI, mPortNumber,
+					mServerPrefix, username, password);
+			authenticated = mNigoriStore.authenticate();
+			register();
+		} catch (UnsupportedEncodingException e) {
+			throw new PasswordStoreException(e.getMessage());
+		} catch (NigoriCryptographyException e) {
+			throw new PasswordStoreException(e.getMessage());
+		} catch (IOException e) {
+			throw new PasswordStoreException(e.getMessage());
+		}
+
+		return authenticated;
 	}
 
 	@Override
@@ -77,9 +127,9 @@ public class NigoriPasswordStore implements IPasswordStore {
 			// Try getting the head of the password list
 			response = mNigoriStore.get(getPassHeadKey().getBytes());
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new PasswordStoreException(e.getMessage());
 		} catch (NigoriCryptographyException e) {
-			e.printStackTrace();
+			throw new PasswordStoreException(e.getMessage());
 		}
 
 		if (response != null) {

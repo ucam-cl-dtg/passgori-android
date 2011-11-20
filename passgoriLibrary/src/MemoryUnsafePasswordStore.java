@@ -24,6 +24,11 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 		mPasswordStore = new HashMap<String, Password>();
 	}
 
+	@Override
+	public boolean authorize(String username, String password) {
+		return true;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

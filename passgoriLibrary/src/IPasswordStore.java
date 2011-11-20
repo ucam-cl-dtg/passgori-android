@@ -12,6 +12,19 @@ import java.util.List;
  */
 public interface IPasswordStore {
 	/**
+	 * Authorize access inputing username and password.
+	 * 
+	 * @param username
+	 *            the username
+	 * @param password
+	 *            the password
+	 * @return true if authorization process has succeeded
+	 * @throws PasswordStoreException
+	 */
+	public boolean authorize(final String username, final String password)
+			throws PasswordStoreException;
+
+	/**
 	 * Return a list of all the stored passwords.
 	 * 
 	 * @return a vector containing the ids of stored passwords
