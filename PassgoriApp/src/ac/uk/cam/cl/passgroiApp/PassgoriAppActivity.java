@@ -15,7 +15,9 @@ import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -106,22 +108,36 @@ public class PassgoriAppActivity extends Activity {
 	 * 
 	 */
 	private class UpdateListRunnable implements Runnable {
+		private final class PasswordListClickListener implements
+				AdapterView.OnItemClickListener {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				String passwordId = ((TextView) view).getText().toString();
+				// TODO: Launch display activity
+			}
+		}
+
 		/**
 		 * The password List
 		 */
 		final ArrayAdapter<String> mPasswordAdapter;
+		final ListView mPasswordListView;
 
 		public UpdateListRunnable(final ArrayAdapter<String> passwordAdapter) {
 			mPasswordAdapter = passwordAdapter;
+			mPasswordListView = new ListView(PassgoriAppActivity.this);
+			mPasswordListView
+					.setOnItemClickListener(new PasswordListClickListener());
+			mPasswordListView.setAdapter(mPasswordAdapter);
 		}
 
 		@Override
 		public void run() {
-			ListView passwordListView = new ListView(PassgoriAppActivity.this);
-			passwordListView.setAdapter(mPasswordAdapter);
+
 			// Remove waiting
 			mWaitingLinearLayout.removeAllViews();
-			mWaitingLinearLayout.addView(passwordListView);
+			mWaitingLinearLayout.addView(mPasswordListView);
 		}
 
 	}
@@ -178,16 +194,7 @@ public class PassgoriAppActivity extends Activity {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.passwordListRefresh:
-			mWaitingLinearLayout.removeAllViews();
-			mWaitingText.setText(R.string.refreshing);
-			final LayoutParams params = new LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-			final ProgressBar pb = new ProgressBar(this);
-			pb.setLayoutParams(params);
-			mWaitingLinearLayout.addView(pb);
-			mWaitingLinearLayout.addView(mWaitingText);
-			new UpdateList().start();
+			refreshPasswordList();
 			return true;
 		case R.id.passgoriConfigure:
 			// TODO
@@ -198,6 +205,22 @@ public class PassgoriAppActivity extends Activity {
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	/**
+	 * 
+	 */
+	private void refreshPasswordList() {
+		mWaitingLinearLayout.removeAllViews();
+		mWaitingText.setText(R.string.refreshing);
+		final LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT);
+
+		final ProgressBar pb = new ProgressBar(this);
+		pb.setLayoutParams(params);
+		mWaitingLinearLayout.addView(pb);
+		mWaitingLinearLayout.addView(mWaitingText);
+		new UpdateList().start();
 	}
 
 	@Override
