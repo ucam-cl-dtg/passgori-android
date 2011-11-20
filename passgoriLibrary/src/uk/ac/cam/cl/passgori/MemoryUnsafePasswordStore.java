@@ -25,7 +25,7 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 	/**
 	 * A hash map storing the passwords.
 	 */
-	private final HashMap<String, Password> mPasswordStore;
+	protected final HashMap<String, Password> mPasswordStore;
 
 	public MemoryUnsafePasswordStore() {
 		mPasswordStore = new HashMap<String, Password>();
