@@ -9,5 +9,5 @@
     <string name="saveButtonLabel">Save</string>
     <string name="cancelButtonLabel">Cancel</string>
     <string name="appDescription">Safely store your passwords in the cloud</string>
-
+	<string name="loadingListLabel">Loading Available Passwords...</string>
 </resources>

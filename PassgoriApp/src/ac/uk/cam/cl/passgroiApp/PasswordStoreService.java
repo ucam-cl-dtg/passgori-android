@@ -3,6 +3,8 @@
  */
 package ac.uk.cam.cl.passgroiApp;
 
+import uk.ac.cam.cl.passgori.DelayedDummyPasswordStore;
+import uk.ac.cam.cl.passgori.IPasswordStore;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -21,20 +23,28 @@ public class PasswordStoreService extends Service {
 	 * Class used for the client Binder.
 	 */
 	public class PasswordStorageBinder extends Binder {
-		PasswordStoreService getService() {
-			// Return this instance of LocalService so clients can call public
-			// methods
-			return PasswordStoreService.this;
+		/**
+		 * Return the unique store provided by the service.
+		 * 
+		 * @return the password store
+		 */
+		IPasswordStore getStore() {
+			// TODO: Add timeout for security purposes
+			if (mPasswordStore == null) {
+				mPasswordStore = new DelayedDummyPasswordStore();
+				// TODO: dynamically create type based on stored parameters (?)
+			}
+			return mPasswordStore;
 		}
 	}
 
+	/**
+	 * The password store being used.
+	 */
+	IPasswordStore mPasswordStore = null;
+
 	// Binder given to clients
 	private final IBinder mBinder = new PasswordStorageBinder();
-
-	/** method for clients */
-	public int getRandomNumber() {
-		return 0;
-	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
