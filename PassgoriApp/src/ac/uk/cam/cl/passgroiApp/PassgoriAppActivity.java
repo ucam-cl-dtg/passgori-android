@@ -201,16 +201,6 @@ public class PassgoriAppActivity extends Activity {
 	}
 
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		// Unbind from the service
-		if (mBound) {
-			unbindService(mConnection);
-			mBound = false;
-		}
-	}
-
-	@Override
 	protected void onStart() {
 		super.onStart();
 
@@ -231,13 +221,4 @@ public class PassgoriAppActivity extends Activity {
 		// Once the service is binded, we will load the list
 	}
 
-	@Override
-	protected void onStop() {
-		super.onStop();
-		// Unbind from the service
-		if (mBound) {
-			unbindService(mConnection);
-			mBound = false;
-		}
-	}
 }
