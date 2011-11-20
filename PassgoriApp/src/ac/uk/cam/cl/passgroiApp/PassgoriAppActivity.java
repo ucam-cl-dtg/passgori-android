@@ -12,6 +12,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -40,6 +44,7 @@ public class PassgoriAppActivity extends Activity {
 				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(
 						PassgoriAppActivity.this, R.layout.password_list_item,
 						passwordList);
+
 				runOnUiThread(new UpdateListRunnable(adapter));
 			} else {
 				// Inform GUI about our tragic failure
@@ -119,8 +124,6 @@ public class PassgoriAppActivity extends Activity {
 
 	private LinearLayout mWaitingLinearLayout;
 
-	private ProgressBar mWaitingProgress;
-
 	private TextView mWaitingText;
 
 	@Override
@@ -128,6 +131,40 @@ public class PassgoriAppActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.password_list);
 
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.password_list_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.passwordListRefresh:
+			mWaitingLinearLayout.removeAllViews();
+			mWaitingText.setText("Refreshing...");
+			final LayoutParams params = new LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+			final ProgressBar pb = new ProgressBar(this);
+			pb.setLayoutParams(params);
+			mWaitingLinearLayout.addView(pb);
+			mWaitingLinearLayout.addView(mWaitingText);
+			new UpdateList().start();
+			return true;
+		case R.id.passgoriConfigure:
+			// TODO
+			return true;
+		case R.id.passwordListAdd:
+			// TODO
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -146,8 +183,6 @@ public class PassgoriAppActivity extends Activity {
 
 		mWaitingLinearLayout = (LinearLayout) this
 				.findViewById(R.id.loadingView);
-		mWaitingProgress = (ProgressBar) this
-				.findViewById(R.id.listLoadingProgress);
 		mWaitingText = (TextView) this.findViewById(R.id.listLoadingText);
 
 		// Bind to PasswordStoreService
@@ -155,8 +190,9 @@ public class PassgoriAppActivity extends Activity {
 
 		if (!getApplicationContext().bindService(intent, mConnection,
 				Context.BIND_AUTO_CREATE)) {
+			mWaitingLinearLayout.removeAllViews();
 			mWaitingText.setText("Failed to Bind to Internal Service");
-			mWaitingLinearLayout.removeView(mWaitingProgress);
+			mWaitingLinearLayout.addView(mWaitingText);
 		}
 
 		// Once the service is binded, we will load the list
@@ -171,5 +207,4 @@ public class PassgoriAppActivity extends Activity {
 			mBound = false;
 		}
 	}
-
 }

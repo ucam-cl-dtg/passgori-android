@@ -10,4 +10,7 @@
     <string name="cancelButtonLabel">Cancel</string>
     <string name="appDescription">Safely store your passwords in the cloud</string>
 	<string name="loadingListLabel">Loading Available Passwords...</string>
+	<string name="refresh">Refresh</string>
+	<string name="add">Add</string>
+	<string name="configurePassgori">Configure Passgori</string>
 </resources>
