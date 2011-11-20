@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="passListLabel">Password List</string>
+    <string name="app_name">Passgori</string>
+    <string name="usernameLabel">Username</string>
+    <string name="passwordLabel">Password</string>
+    <string name="notesLabel">Notes</string>
+    <string name="saveButtonLabel">Save</string>
+    <string name="cancelButtonLabel">Cancel</string>
+    <string name="appDescription">Safely store your passwords in the cloud</string>
+
+</resources>
