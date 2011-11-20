@@ -1,4 +1,5 @@
 package uk.ac.cam.cl.passgori;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,11 @@ import java.util.Set;
 public class MemoryUnsafePasswordStore implements IPasswordStore {
 
 	/**
+	 * Variable indicating if the user has been authorized.
+	 */
+	private boolean mAuthorized = false;
+
+	/**
 	 * A hash map storing the passwords.
 	 */
 	private final HashMap<String, Password> mPasswordStore;
@@ -27,6 +33,7 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 
 	@Override
 	public boolean authorize(String username, String password) {
+		mAuthorized = true;
 		return true;
 	}
 
@@ -37,6 +44,8 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 	 */
 	@Override
 	public List<String> getAllStoredPasswordIds() throws PasswordStoreException {
+		if (!mAuthorized)
+			throw new PasswordStoreException("Not Connected/Authorized");
 		final Set<String> idSet = mPasswordStore.keySet();
 		return new ArrayList<String>(idSet);
 	}
@@ -48,7 +57,10 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 	 */
 	@Override
 	public boolean removePassword(String aId) throws PasswordStoreException {
+		if (!mAuthorized)
+			throw new PasswordStoreException("Not Connected/Authorized");
 		return mPasswordStore.remove(aId) != null;
+
 	}
 
 	/*
@@ -58,6 +70,8 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 	 */
 	@Override
 	public Password retrivePassword(String aId) throws PasswordStoreException {
+		if (!mAuthorized)
+			throw new PasswordStoreException("Not Connected/Authorized");
 		return mPasswordStore.get(aId);
 	}
 
@@ -69,7 +83,8 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 	@Override
 	public boolean storePassword(Password aPassword)
 			throws PasswordStoreException {
-
+		if (!mAuthorized)
+			throw new PasswordStoreException("Not Connected/Authorized");
 		return mPasswordStore.put(aPassword.getId(), aPassword) != null;
 	}
 
