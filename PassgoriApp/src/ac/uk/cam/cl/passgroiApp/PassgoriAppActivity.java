@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
+ * The main password listing activity.
  * 
  * @author Miltiadis Allamanis
  * 
@@ -36,7 +37,10 @@ public class PassgoriAppActivity extends Activity {
 			final List<String> passwordList = getPasswordList();
 			if (passwordList != null) {
 				// Update GUI
-				runOnUiThread(new UpdateListRunnable(passwordList));
+				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+						PassgoriAppActivity.this, R.layout.password_list_item,
+						passwordList);
+				runOnUiThread(new UpdateListRunnable(adapter));
 			} else {
 				// Inform GUI about our tragic failure
 			}
@@ -52,7 +56,7 @@ public class PassgoriAppActivity extends Activity {
 				mPasswordStore.authorize("l", "b"); // TODO: Change...
 				return mPasswordStore.getAllStoredPasswordIds();
 			} catch (PasswordStoreException e) {
-				return null;
+				return null; // TODO: Change...
 			}
 
 		}
@@ -67,24 +71,19 @@ public class PassgoriAppActivity extends Activity {
 		/**
 		 * The password List
 		 */
-		final List<String> mPasswordList;
+		final ArrayAdapter<String> mPasswordAdapter;
 
-		public UpdateListRunnable(final List<String> passwordList) {
-			mPasswordList = passwordList;
-
-			ListView passwordListView = new ListView(PassgoriAppActivity.this);
-			passwordListView.setAdapter(new ArrayAdapter<String>(
-					PassgoriAppActivity.this, R.layout.password_list_item,
-					mPasswordList));
-			// Remove waiting
-			mWaitingLinearLayout.removeAllViews();
-			mWaitingLinearLayout.addView(passwordListView);
-
+		public UpdateListRunnable(final ArrayAdapter<String> passwordAdapter) {
+			mPasswordAdapter = passwordAdapter;
 		}
 
 		@Override
 		public void run() {
-
+			ListView passwordListView = new ListView(PassgoriAppActivity.this);
+			passwordListView.setAdapter(mPasswordAdapter);
+			// Remove waiting
+			mWaitingLinearLayout.removeAllViews();
+			mWaitingLinearLayout.addView(passwordListView);
 		}
 
 	}
@@ -109,7 +108,7 @@ public class PassgoriAppActivity extends Activity {
 			mBound = true;
 
 			// Load List!
-			new UpdateList().run();
+			new UpdateList().start();
 		}
 
 		@Override
