@@ -31,6 +31,34 @@ import android.widget.TextView;
 public class PassgoriAppActivity extends Activity {
 
 	/**
+	 * A Runnable for updating the GUI on failure.
+	 * 
+	 */
+	private class InformFailureRunnable implements Runnable {
+
+		private final String mFailureMessage;
+
+		/**
+		 * The constructor.
+		 * 
+		 * @param message
+		 *            the message to be presented to the user
+		 */
+		public InformFailureRunnable(String message) {
+			mFailureMessage = message;
+		}
+
+		@Override
+		public void run() {
+			mWaitingLinearLayout.removeAllViews();
+			mWaitingText.setText(mFailureMessage);
+			mWaitingLinearLayout.addView(mWaitingText);
+			// TODO: Ideally add a failure sign!
+		}
+
+	}
+
+	/**
 	 * A Thread responsible for updating the list
 	 * 
 	 */
@@ -38,31 +66,35 @@ public class PassgoriAppActivity extends Activity {
 		@Override
 		public void run() {
 
-			final List<String> passwordList = getPasswordList();
-			if (passwordList != null) {
-				// Update GUI
-				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-						PassgoriAppActivity.this, R.layout.password_list_item,
-						passwordList);
+			List<String> passwordList;
+			try {
+				passwordList = getPasswordList();
+				if (passwordList != null) {
+					// Update GUI
+					final ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+							PassgoriAppActivity.this,
+							R.layout.password_list_item, passwordList);
 
-				runOnUiThread(new UpdateListRunnable(adapter));
-			} else {
-				// Inform GUI about our tragic failure
+					runOnUiThread(new UpdateListRunnable(adapter));
+				} else {
+					runOnUiThread(new InformFailureRunnable("No passwords"));
+				}
+
+			} catch (final PasswordStoreException e) {
+				runOnUiThread(new InformFailureRunnable(e.getMessage()));
 			}
+
 		}
 
 		/**
 		 * Retrieve Password List
 		 * 
 		 * @return
+		 * @throws PasswordStoreException
 		 */
-		private List<String> getPasswordList() {
-			try {
-				mPasswordStore.authorize("l", "b"); // TODO: Change...
-				return mPasswordStore.getAllStoredPasswordIds();
-			} catch (PasswordStoreException e) {
-				return null; // TODO: Change...
-			}
+		private List<String> getPasswordList() throws PasswordStoreException {
+			mPasswordStore.authorize("l", "b"); // TODO: Change...
+			return mPasswordStore.getAllStoredPasswordIds();
 
 		}
 
