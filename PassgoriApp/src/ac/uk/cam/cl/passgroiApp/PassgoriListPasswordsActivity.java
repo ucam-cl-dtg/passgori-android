@@ -30,7 +30,7 @@ import android.widget.TextView;
  * @author Miltiadis Allamanis
  * 
  */
-public class PassgoriAppActivity extends Activity {
+public class PassgoriListPasswordsActivity extends Activity {
 
 	/**
 	 * A Runnable for updating the GUI on failure.
@@ -74,7 +74,7 @@ public class PassgoriAppActivity extends Activity {
 				if (passwordList != null) {
 					// Update GUI
 					final ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-							PassgoriAppActivity.this,
+							PassgoriListPasswordsActivity.this,
 							R.layout.password_list_item, passwordList);
 
 					runOnUiThread(new UpdateListRunnable(adapter));
@@ -126,7 +126,7 @@ public class PassgoriAppActivity extends Activity {
 
 		public UpdateListRunnable(final ArrayAdapter<String> passwordAdapter) {
 			mPasswordAdapter = passwordAdapter;
-			mPasswordListView = new ListView(PassgoriAppActivity.this);
+			mPasswordListView = new ListView(PassgoriListPasswordsActivity.this);
 			mPasswordListView
 					.setOnItemClickListener(new PasswordListClickListener());
 			mPasswordListView.setAdapter(mPasswordAdapter);

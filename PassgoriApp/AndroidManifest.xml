@@ -12,7 +12,7 @@
         android:label="@string/app_name" android:description="@string/appDescription" android:allowBackup="true">
         <activity
             android:label="@string/app_name"
-            android:name=".PassgoriAppActivity" >
+            android:name=".PassgoriListPasswordsActivity" >
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
 
