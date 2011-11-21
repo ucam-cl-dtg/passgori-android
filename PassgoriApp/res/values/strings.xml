@@ -16,4 +16,6 @@
 	<string name="configurePassgori">Configure Passgori</string>
 	<string name="serviceBindError">Failed to Bind to Internal Service</string>
 	<string name="noPasswordsError">No Passwords</string>
+	<string name="editPassword">Edit Password</string>
+	<string name="deletePassword">Delete Password</string>
 </resources>

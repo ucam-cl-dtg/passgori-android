@@ -15,8 +15,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * An activity presenting the a password entity.
@@ -25,6 +29,43 @@ import android.widget.TextView;
  * 
  */
 public class PassgoriPresentPasswordsActivity extends Activity {
+
+	public class DeletePasswordThread extends Thread {
+
+		private final String mPasswordId;
+
+		public DeletePasswordThread(final String passwordId) {
+			mPasswordId = passwordId;
+		}
+
+		@Override
+		public void run() {
+			try {
+				if (mPasswordStore.removePassword(mPasswordId)) {
+					runOnUiThread(new PasswordDeleted());
+					// go back!
+				} else {
+					// update GUI
+				}
+			} catch (PasswordStoreException e) {
+				// TODO Update GUI
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public class PasswordDeleted implements Runnable {
+
+		@Override
+		public void run() {
+			mLoadingDialog.dismiss();
+			setResult(1); // on finish ask previous activity to refresh
+			finish();
+			Toast.makeText(getApplicationContext(), "Password Deleted",
+					Toast.LENGTH_LONG);
+		}
+
+	}
 
 	private class GetPassword extends Thread {
 		@Override
@@ -140,6 +181,31 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 		mUsernameField.setVisibility(View.INVISIBLE);
 		mPasswordField.setVisibility(View.INVISIBLE);
 		mNotesField.setVisibility(View.INVISIBLE);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.password_present_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.editPasswordOption:
+			// TODO
+			return true;
+		case R.id.deletePasswordOption:
+			mLoadingDialog = ProgressDialog.show(this, "",
+					"Deleting. Please wait...", true);
+			new DeletePasswordThread(getIntent().getExtras().getString(
+					"passwordId")).start();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override

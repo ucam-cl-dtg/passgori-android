@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -211,19 +212,31 @@ public class PassgoriListPasswordsActivity extends Activity {
 	}
 
 	/**
-	 * 
+	 * Refresh the password list
 	 */
 	private void refreshPasswordList() {
 		mWaitingLinearLayout.removeAllViews();
-		mWaitingText.setText(R.string.refreshing);
+		TextView waitingText = new TextView(this);
+		waitingText.setText(R.string.refreshing);
+		waitingText.setGravity(Gravity.CENTER);
+		waitingText.setTextAppearance(this,
+				android.R.style.TextAppearance_Large);
+
 		final LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT);
 
 		final ProgressBar pb = new ProgressBar(this);
 		pb.setLayoutParams(params);
 		mWaitingLinearLayout.addView(pb);
-		mWaitingLinearLayout.addView(mWaitingText);
+		mWaitingLinearLayout.addView(waitingText);
 		new UpdateList().start();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode > 0)
+			refreshPasswordList();
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
