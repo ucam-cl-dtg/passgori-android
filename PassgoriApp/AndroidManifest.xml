@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <service android:name="PasswordStoreService"></service>
+        <activity android:name="PassgoriPresentPasswordsActivity"></activity>
     </application>
 
 </manifest>

@@ -114,7 +114,10 @@ public class PassgoriListPasswordsActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				String passwordId = ((TextView) view).getText().toString();
-				// TODO: Launch display activity
+				Intent intent = new Intent(view.getContext(),
+						PassgoriPresentPasswordsActivity.class);
+				intent.putExtra("passwordId", passwordId);
+				startActivityForResult(intent, 0);
 			}
 		}
 
