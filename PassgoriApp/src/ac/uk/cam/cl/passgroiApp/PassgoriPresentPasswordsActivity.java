@@ -79,6 +79,8 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 
 		@Override
 		public void run() {
+			if (mLoadingDialog != null)
+				mLoadingDialog.dismiss();
 			Toast.makeText(getApplicationContext(), mMessage, Toast.LENGTH_LONG);
 		}
 
@@ -248,6 +250,10 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 		if (!getApplicationContext().bindService(intent, mConnection,
 				Context.BIND_AUTO_CREATE)) {
 			// Inform GUI for failure!!
+			mLoadingDialog.dismiss();
+			new FailureNotification("Unable to connect to internal server")
+					.run();
+
 		}
 
 		// Once the service is binded, we will load the list
