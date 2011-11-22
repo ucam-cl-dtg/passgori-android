@@ -214,7 +214,10 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.editPasswordOption:
-			// TODO
+			Intent intent = new Intent(this, PassgoriEditPasswordActivity.class);
+			intent.putExtra("passwordId",
+					getIntent().getExtras().getString("passwordId"));
+			startActivityForResult(intent, 0);
 			return true;
 		case R.id.deletePasswordOption:
 			mLoadingDialog = ProgressDialog.show(this, "",

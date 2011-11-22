@@ -204,7 +204,9 @@ public class PassgoriListPasswordsActivity extends Activity {
 			// TODO
 			return true;
 		case R.id.passwordListAdd:
-			// TODO
+			Intent intent = new Intent(this, PassgoriEditPasswordActivity.class);
+
+			startActivityForResult(intent, 0);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

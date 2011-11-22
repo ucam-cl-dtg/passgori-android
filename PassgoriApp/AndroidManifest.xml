@@ -29,6 +29,11 @@
             android:screenOrientation="nosensor">
             
         </activity>
+        <activity 
+            android:name="PassgoriEditPasswordActivity"
+            android:configChanges="orientation" 
+            android:screenOrientation="nosensor">
+        </activity>
     </application>
 
 </manifest>
