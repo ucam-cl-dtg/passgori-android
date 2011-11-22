@@ -46,10 +46,12 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 					// go back!
 				} else {
 					// update GUI
+					runOnUiThread(new FailureNotification(
+							"Password unaccessbile"));
 				}
 			} catch (PasswordStoreException e) {
-				// TODO Update GUI
-				e.printStackTrace();
+				runOnUiThread(new FailureNotification(e.getMessage()));
+
 			}
 		}
 	}
@@ -67,6 +69,21 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 
 	}
 
+	private class FailureNotification implements Runnable {
+
+		private final String mMessage;
+
+		public FailureNotification(String message) {
+			mMessage = message;
+		}
+
+		@Override
+		public void run() {
+			Toast.makeText(getApplicationContext(), mMessage, Toast.LENGTH_LONG);
+		}
+
+	}
+
 	private class GetPassword extends Thread {
 		@Override
 		public void run() {
@@ -80,10 +97,12 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 					runOnUiThread(updater);
 				} else {
 					// Update GUI about failure!!
+					runOnUiThread(new FailureNotification(
+							"Password Unaccessible"));
 				}
 			} catch (PasswordStoreException e) {
-				// TODO Inform GUI
-				e.printStackTrace();
+				runOnUiThread(new FailureNotification(e.getMessage()));
+
 			}
 		}
 	}
