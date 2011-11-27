@@ -3,7 +3,7 @@
 
     <string name="passListLabel">Password List</string>
     <string name="app_name">Passgori</string>
-    <string name="usernameLabel">Username</string>
+    <string name="usernameLabel">Username:</string>
     <string name="passwordLabel">Password</string>
     <string name="notesLabel">Notes</string>
     <string name="saveButtonLabel">Save</string>
@@ -22,4 +22,6 @@
 	<string name="serverLabel">Server</string>
 	<string name="portLabel">Port</string>
 	<string name="serverPrefixLabel">Server Prefix</string>
+	<string name="passgoriLogin">Passgori Login</string>
+	<string name="unlockLabel">Unlock Password Store</string>
 </resources>
