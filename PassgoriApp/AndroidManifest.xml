@@ -12,7 +12,7 @@
         android:label="@string/app_name" android:description="@string/appDescription" android:allowBackup="true">
         <activity
             android:label="@string/app_name"
-            android:name=".PassgoriListPasswordsActivity"
+            android:name=".PassgoriLogingActivity"
             android:configChanges="orientation" 
             android:screenOrientation="nosensor" >
             
@@ -35,6 +35,9 @@
             android:screenOrientation="nosensor">
         </activity>
         <activity android:name="PassgoriConfigurationsEditor"
+            android:configChanges="orientation" 
+            android:screenOrientation="nosensor"></activity>
+        <activity android:name="PassgoriListPasswordsActivity"
             android:configChanges="orientation" 
             android:screenOrientation="nosensor"></activity>
     </application>

@@ -100,7 +100,6 @@ public class PassgoriListPasswordsActivity extends Activity {
 			if (mPasswordStore == null)
 				throw new PasswordStoreException(
 						"Password Store instance not instantiated");
-			// mPasswordStore.authorize("test", "test"); // TODO: Change...
 			return mPasswordStore.getAllStoredPasswordIds();
 
 		}

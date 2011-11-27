@@ -24,6 +24,21 @@ public class PasswordStoreService extends Service {
 	 * Class used for the client Binder.
 	 */
 	public class PasswordStorageBinder extends Binder {
+		public void createStore(String password) throws PasswordStoreException {
+			try {
+				PassgoriConfigurations pc = new PassgoriConfigurations(
+						getBaseContext());
+				mPasswordStore = new NigoriPasswordStore(pc.getUsername(),
+						password, pc.getServer(), pc.getPort(),
+						pc.getServerPrefix());
+				// TODO: dynamically create type based on stored parameters
+				// (?)
+			} catch (Exception e) {
+				throw new PasswordStoreException(e.getMessage());
+			}
+
+		}
+
 		/**
 		 * Return the unique store provided by the service.
 		 * 
@@ -32,19 +47,6 @@ public class PasswordStoreService extends Service {
 		 */
 		IPasswordStore getStore() throws PasswordStoreException {
 			// TODO: Add timeout for security purposes
-			if (mPasswordStore == null) {
-				try {
-					PassgoriConfigurations pc = new PassgoriConfigurations(
-							getBaseContext());
-					mPasswordStore = new NigoriPasswordStore(pc.getUsername(),
-							"test", pc.getServer(), pc.getPort(),
-							pc.getServerPrefix());
-					// TODO: dynamically create type based on stored parameters
-					// (?)
-				} catch (Exception e) {
-					throw new PasswordStoreException(e.getMessage());
-				}
-			}
 			return mPasswordStore;
 		}
 	}
