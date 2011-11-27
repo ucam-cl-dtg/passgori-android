@@ -1,4 +1,5 @@
 package uk.ac.cam.cl.passgori;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.AbstractList;
@@ -58,12 +59,9 @@ public class NigoriPasswordStore implements IPasswordStore {
 	 *            the port number on the Nigori server
 	 * @param serverPrefix
 	 *            a server prefix
-	 * @throws IOException
-	 * @throws NigoriCryptographyException
 	 */
 	public NigoriPasswordStore(final String username, final String serverURI,
-			final int portNumber, final String serverPrefix)
-			throws IOException, NigoriCryptographyException {
+			final int portNumber, final String serverPrefix) {
 		mPortNumber = portNumber;
 		mServerPrefix = serverPrefix;
 		mServerURI = serverURI;
@@ -84,18 +82,18 @@ public class NigoriPasswordStore implements IPasswordStore {
 	 *            the port number on the Nigori server
 	 * @param serverPrefix
 	 *            a server prefix
-	 * @throws IOException
-	 * @throws NigoriCryptographyException
+	 * @throws PasswordStoreException
 	 */
 	public NigoriPasswordStore(final String username, final String password,
 			final String serverURI, final int portNumber,
-			final String serverPrefix) throws IOException,
-			NigoriCryptographyException {
+			final String serverPrefix) throws PasswordStoreException {
 
 		mPortNumber = portNumber;
 		mServerPrefix = serverPrefix;
 		mServerURI = serverURI;
 		mUserName = username;
+
+		authorize(mUserName, password);
 
 	}
 
@@ -106,13 +104,11 @@ public class NigoriPasswordStore implements IPasswordStore {
 		try {
 			mNigoriStore = new NigoriDatastore(mServerURI, mPortNumber,
 					mServerPrefix, username, password);
+
 			authenticated = mNigoriStore.authenticate();
-			register();
-		} catch (UnsupportedEncodingException e) {
-			throw new PasswordStoreException(e.getMessage());
-		} catch (NigoriCryptographyException e) {
-			throw new PasswordStoreException(e.getMessage());
-		} catch (IOException e) {
+			if (!authenticated)
+				authenticated = register();
+		} catch (Exception e) {
 			throw new PasswordStoreException(e.getMessage());
 		}
 
