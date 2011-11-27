@@ -3,8 +3,9 @@
  */
 package ac.uk.cam.cl.passgroiApp;
 
-import uk.ac.cam.cl.passgori.DelayedDummyPasswordStore;
 import uk.ac.cam.cl.passgori.IPasswordStore;
+import uk.ac.cam.cl.passgori.NigoriPasswordStore;
+import uk.ac.cam.cl.passgori.PasswordStoreException;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -27,12 +28,19 @@ public class PasswordStoreService extends Service {
 		 * Return the unique store provided by the service.
 		 * 
 		 * @return the password store
+		 * @throws PasswordStoreException
 		 */
-		IPasswordStore getStore() {
+		IPasswordStore getStore() throws PasswordStoreException {
 			// TODO: Add timeout for security purposes
 			if (mPasswordStore == null) {
-				mPasswordStore = new DelayedDummyPasswordStore();
-				// TODO: dynamically create type based on stored parameters (?)
+				try {
+					mPasswordStore = new NigoriPasswordStore("test", "test",
+							"192.168.0.8", 8888, "nigori");
+					// TODO: dynamically create type based on stored parameters
+					// (?)
+				} catch (Exception e) {
+					throw new PasswordStoreException(e.getMessage());
+				}
 			}
 			return mPasswordStore;
 		}

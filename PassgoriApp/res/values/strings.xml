@@ -18,4 +18,8 @@
 	<string name="noPasswordsError">No Passwords</string>
 	<string name="editPassword">Edit Password</string>
 	<string name="deletePassword">Delete Password</string>
+	<string name="configurations">Configurations</string>
+	<string name="serverLabel">Server</string>
+	<string name="portLabel">Port</string>
+	<string name="serverPrefixLabel">Server Prefix</string>
 </resources>

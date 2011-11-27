@@ -97,7 +97,10 @@ public class PassgoriListPasswordsActivity extends Activity {
 		 * @throws PasswordStoreException
 		 */
 		private List<String> getPasswordList() throws PasswordStoreException {
-			mPasswordStore.authorize("l", "b"); // TODO: Change...
+			if (mPasswordStore == null)
+				throw new PasswordStoreException(
+						"Password Store instance not instantiated");
+			// mPasswordStore.authorize("test", "test"); // TODO: Change...
 			return mPasswordStore.getAllStoredPasswordIds();
 
 		}
@@ -162,11 +165,16 @@ public class PassgoriListPasswordsActivity extends Activity {
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			PasswordStorageBinder binder = (PasswordStorageBinder) service;
-			mPasswordStore = binder.getStore();
-			mBound = true;
+			try {
+				mPasswordStore = binder.getStore();
+				mBound = true;
 
-			// Load List!
-			new UpdateList().start();
+				// Load List!
+				new UpdateList().start();
+			} catch (PasswordStoreException e) {
+				new InformFailureRunnable(e.getMessage()).run();
+			}
+
 		}
 
 		@Override

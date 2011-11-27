@@ -3,6 +3,7 @@
 	<name>PassgoriApp</name>
 	<comment></comment>
 	<projects>
+		<project>passgoriLibrary</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

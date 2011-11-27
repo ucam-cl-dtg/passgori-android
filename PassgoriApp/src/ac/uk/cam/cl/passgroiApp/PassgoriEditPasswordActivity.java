@@ -186,11 +186,15 @@ public class PassgoriEditPasswordActivity extends Activity {
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			PasswordStorageBinder binder = (PasswordStorageBinder) service;
-			mPasswordStore = binder.getStore();
-			mBound = true;
+			try {
+				mPasswordStore = binder.getStore();
+				mBound = true;
 
-			// Spawn thread to get password details, if any!
-			new GetPassword().start();
+				// Spawn thread to get password details, if any!
+				new GetPassword().start();
+			} catch (PasswordStoreException e) {
+				new FailureNotification(e.getMessage()).run();
+			}
 
 		}
 
