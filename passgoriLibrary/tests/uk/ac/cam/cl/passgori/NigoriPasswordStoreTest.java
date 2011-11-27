@@ -1,4 +1,5 @@
 package uk.ac.cam.cl.passgori;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -11,7 +12,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
 
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
@@ -29,10 +29,10 @@ import com.google.nigori.client.NigoriDatastore;
 public class NigoriPasswordStoreTest {
 	NigoriPasswordStore ps;
 
-	private final String TEST_USERNAME = "test";
+	private final String TEST_USERNAME = "testaccount";
 	private final String TEST_PASSWORD = "test";
-	private final String TEST_SERVER = "localhost";
-	private final int TEST_SERVER_PORT = 8888;
+	private final String TEST_SERVER = "nigori-dev.appspot.com";
+	private final int TEST_SERVER_PORT = 80;
 	private final String TEST_SERVER_PREFIX = "nigori";
 
 	/**
@@ -143,6 +143,7 @@ public class NigoriPasswordStoreTest {
 			mNigoriStore = new NigoriDatastore(TEST_SERVER, TEST_SERVER_PORT,
 					TEST_SERVER_PREFIX, TEST_USERNAME, TEST_PASSWORD);
 
+			mNigoriStore.authenticate();
 		} catch (UnsupportedEncodingException e) {
 			fail(e.getMessage());
 		} catch (NigoriCryptographyException e) {
