@@ -209,7 +209,10 @@ public class PassgoriListPasswordsActivity extends Activity {
 			refreshPasswordList();
 			return true;
 		case R.id.passgoriConfigure:
-			// TODO
+			Intent configIntent = new Intent(this,
+					PassgoriConfigurationsEditor.class);
+
+			startActivityForResult(configIntent, 0);
 			return true;
 		case R.id.passwordListAdd:
 			Intent intent = new Intent(this, PassgoriEditPasswordActivity.class);

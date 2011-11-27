@@ -34,6 +34,9 @@
             android:configChanges="orientation" 
             android:screenOrientation="nosensor">
         </activity>
+        <activity android:name="PassgoriConfigurationsEditor"
+            android:configChanges="orientation" 
+            android:screenOrientation="nosensor"></activity>
     </application>
 
 </manifest>
