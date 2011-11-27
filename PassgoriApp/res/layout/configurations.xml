@@ -67,5 +67,22 @@
         <requestFocus />
     </EditText>
     
-
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center" >
+   			<Button 
+				    android:id="@+id/saveButton"
+				    android:layout_width="150dip"
+			        android:layout_height="wrap_content"
+			        android:text="@string/saveButtonLabel"/>
+		        
+		        <Button 
+				    android:id="@+id/cancelButton"
+				    android:layout_width="150dip"
+			        android:layout_height="wrap_content"
+			        android:text="@string/cancelButtonLabel"/>
+   </LinearLayout>
+        
 </LinearLayout>
