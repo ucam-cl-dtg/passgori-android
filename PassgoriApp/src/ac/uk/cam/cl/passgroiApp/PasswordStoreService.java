@@ -34,8 +34,11 @@ public class PasswordStoreService extends Service {
 			// TODO: Add timeout for security purposes
 			if (mPasswordStore == null) {
 				try {
-					mPasswordStore = new NigoriPasswordStore("test", "test",
-							"192.168.0.8", 8888, "nigori");
+					PassgoriConfigurations pc = new PassgoriConfigurations(
+							getBaseContext());
+					mPasswordStore = new NigoriPasswordStore(pc.getUsername(),
+							"test", pc.getServer(), pc.getPort(),
+							pc.getServerPrefix());
 					// TODO: dynamically create type based on stored parameters
 					// (?)
 				} catch (Exception e) {
