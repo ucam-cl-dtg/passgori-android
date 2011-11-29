@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * A login activity for Passgori.
@@ -38,7 +37,8 @@ public class PassgoriLogingActivity extends Activity {
 		public void run() {
 			if (mLoadingDialog != null)
 				mLoadingDialog.dismiss();
-			Toast.makeText(getApplicationContext(), mMessage, Toast.LENGTH_LONG);
+			TextView errorTextView = (TextView) findViewById(R.id.loginerror);
+			errorTextView.setText(mMessage);
 		}
 
 	}

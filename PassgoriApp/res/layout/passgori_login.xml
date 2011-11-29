@@ -43,4 +43,10 @@
 				    android:layout_width="150dip"
 			        android:layout_height="wrap_content"
 			        android:text="@string/unlockLabel"/>
+     
+     <TextView
+        android:id="@+id/loginerror"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 </LinearLayout>
