@@ -46,7 +46,7 @@ public class PassgoriConfigurations {
 	 * @return the stored server, "" if none
 	 */
 	public final String getServer() {
-		return mSettings.getString("passgoriServer", "");
+		return mSettings.getString("passgoriServer", "nigori-dev.appspot.com");
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class PassgoriConfigurations {
 	 * @return the stored username, "" if none
 	 */
 	public final String getUsername() {
-		return mSettings.getString("passgoriUsername", "");
+		return mSettings.getString("passgoriUsername", "nobody");
 	}
 
 	/**
