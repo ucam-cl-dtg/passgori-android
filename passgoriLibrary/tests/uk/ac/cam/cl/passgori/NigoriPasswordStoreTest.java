@@ -20,13 +20,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.nigori.client.NigoriCryptographyException;
@@ -43,7 +43,7 @@ import com.google.nigori.client.NigoriDatastore;
  * 
  */
 public class NigoriPasswordStoreTest {
-	NigoriPasswordStore ps;
+	IPasswordStore ps;
 
 	private final String TEST_USERNAME = "testaccount";
 	private final String TEST_PASSWORD = "test";
@@ -51,102 +51,107 @@ public class NigoriPasswordStoreTest {
 	private final int TEST_SERVER_PORT = 80;
 	private final String TEST_SERVER_PREFIX = "nigori";
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
+	@BeforeClass
+	public static void ensureClean() throws PasswordStoreException {
+	  NigoriPasswordStoreTest instance = new NigoriPasswordStoreTest();
+	  instance.createStore();
+	  instance.destroyStore();
+	}
 
+	@Before
+	public void createStore() throws PasswordStoreException {
+	  ps = new NigoriPasswordStore(TEST_USERNAME,
+        TEST_PASSWORD, TEST_SERVER, TEST_SERVER_PORT,
+        TEST_SERVER_PREFIX);
+	}
+
+	@After
+	public void destroyStore() throws PasswordStoreException {
+	  ps.destroyStore();
 	}
 
 	@Test
 	public void testAddKey() throws IOException, NigoriCryptographyException,
 			PasswordStoreException {
-		NigoriPasswordStore nps = new NigoriPasswordStore(TEST_USERNAME,
-				TEST_PASSWORD, TEST_SERVER, TEST_SERVER_PORT,
-				TEST_SERVER_PREFIX);
 
 		Password testPass = new Password("a", "bb", "ccc", "dddd");
 
-		assertTrue(nps.storePassword(testPass));
-		assertEquals(nps.getAllStoredPasswordIds().size(), 1);
-		assertTrue(nps.getAllStoredPasswordIds().get(0).equals("a"));
-		assertTrue(nps.retrivePassword("a").getPassword().equals("ccc"));
-		assertTrue(nps.retrivePassword("a").getNotes().equals("dddd"));
+		assertTrue(ps.storePassword(testPass));
+		assertEquals(ps.getAllStoredPasswordIds().size(), 1);
+		assertTrue(ps.getAllStoredPasswordIds().get(0).equals("a"));
+		assertTrue(ps.retrivePassword("a").getPassword().equals("ccc"));
+		assertTrue(ps.retrivePassword("a").getNotes().equals("dddd"));
 
-		// assertFalse(nps.removePassword("bb")); TODO: Server API does not
-		// respond correctly
-		assertEquals(nps.getAllStoredPasswordIds().size(), 1);
-		assertNull(nps.retrivePassword("bb"));
+		assertFalse(ps.removePassword("bb"));
+		List<String> passwordIds = ps.getAllStoredPasswordIds();
+		assertEquals(1,passwordIds.size());
+		assertNull(ps.retrivePassword("bb"));
 
-		assertTrue(nps.removePassword("a"));
-		assertEquals(nps.getAllStoredPasswordIds().size(), 0);
-		assertNull(nps.retrivePassword("a"));
+		assertTrue(ps.removePassword("a"));
+		assertEquals(0,ps.getAllStoredPasswordIds().size());
+		assertNull(ps.retrivePassword("a"));
 	}
 
 	@Test
 	public void testKeyLinkedList() throws IOException,
 			NigoriCryptographyException, PasswordStoreException {
-		NigoriPasswordStore nps = new NigoriPasswordStore(TEST_USERNAME,
-				TEST_PASSWORD, TEST_SERVER, TEST_SERVER_PORT,
-				TEST_SERVER_PREFIX);
 
 		Password testPass1 = new Password("a", "bb", "ccc", "dddd");
-		assertTrue(nps.storePassword(testPass1));
-		assertEquals(nps.getAllStoredPasswordIds().size(), 1);
-		assertTrue(nps.getAllStoredPasswordIds().get(0).equals("a"));
-		assertTrue(nps.retrivePassword("a").getPassword().equals("ccc"));
-		assertTrue(nps.retrivePassword("a").getNotes().equals("dddd"));
+		assertTrue(ps.storePassword(testPass1));
+		assertEquals(ps.getAllStoredPasswordIds().size(), 1);
+		assertTrue(ps.getAllStoredPasswordIds().get(0).equals("a"));
+		assertTrue(ps.retrivePassword("a").getPassword().equals("ccc"));
+		assertTrue(ps.retrivePassword("a").getNotes().equals("dddd"));
 
 		Password testPass2 = new Password("b", "cc", "ddd", "eeee");
-		assertTrue(nps.storePassword(testPass2));
-		assertEquals(nps.getAllStoredPasswordIds().size(), 2);
-		assertTrue(nps.getAllStoredPasswordIds().contains("b"));
-		assertTrue(nps.getAllStoredPasswordIds().contains("a"));
-		assertTrue(nps.retrivePassword("a").getPassword().equals("ccc"));
-		assertTrue(nps.retrivePassword("a").getNotes().equals("dddd"));
-		assertTrue(nps.retrivePassword("b").getPassword().equals("ddd"));
-		assertTrue(nps.retrivePassword("b").getNotes().equals("eeee"));
+		assertTrue(ps.storePassword(testPass2));
+		assertEquals(ps.getAllStoredPasswordIds().size(), 2);
+		assertTrue(ps.getAllStoredPasswordIds().contains("b"));
+		assertTrue(ps.getAllStoredPasswordIds().contains("a"));
+		assertTrue(ps.retrivePassword("a").getPassword().equals("ccc"));
+		assertTrue(ps.retrivePassword("a").getNotes().equals("dddd"));
+		assertTrue(ps.retrivePassword("b").getPassword().equals("ddd"));
+		assertTrue(ps.retrivePassword("b").getNotes().equals("eeee"));
 
 		Password testPass3 = new Password("c", "dd", "eee", "ffff");
-		assertTrue(nps.storePassword(testPass3));
-		assertEquals(nps.getAllStoredPasswordIds().size(), 3);
-		assertTrue(nps.getAllStoredPasswordIds().contains("b"));
-		assertTrue(nps.getAllStoredPasswordIds().contains("a"));
-		assertTrue(nps.getAllStoredPasswordIds().contains("c"));
-		assertTrue(nps.retrivePassword("a").getPassword().equals("ccc"));
-		assertTrue(nps.retrivePassword("a").getNotes().equals("dddd"));
-		assertTrue(nps.retrivePassword("b").getPassword().equals("ddd"));
-		assertTrue(nps.retrivePassword("b").getNotes().equals("eeee"));
-		assertTrue(nps.retrivePassword("c").getPassword().equals("eee"));
-		assertTrue(nps.retrivePassword("c").getNotes().equals("ffff"));
+		assertTrue(ps.storePassword(testPass3));
+		assertEquals(ps.getAllStoredPasswordIds().size(), 3);
+		assertTrue(ps.getAllStoredPasswordIds().contains("b"));
+		assertTrue(ps.getAllStoredPasswordIds().contains("a"));
+		assertTrue(ps.getAllStoredPasswordIds().contains("c"));
+		assertTrue(ps.retrivePassword("a").getPassword().equals("ccc"));
+		assertTrue(ps.retrivePassword("a").getNotes().equals("dddd"));
+		assertTrue(ps.retrivePassword("b").getPassword().equals("ddd"));
+		assertTrue(ps.retrivePassword("b").getNotes().equals("eeee"));
+		assertTrue(ps.retrivePassword("c").getPassword().equals("eee"));
+		assertTrue(ps.retrivePassword("c").getNotes().equals("ffff"));
 
-		assertTrue(nps.removePassword("b"));
-		assertEquals(nps.getAllStoredPasswordIds().size(), 2);
-		assertFalse(nps.getAllStoredPasswordIds().contains("b"));
-		assertTrue(nps.getAllStoredPasswordIds().contains("a"));
-		assertTrue(nps.getAllStoredPasswordIds().contains("c"));
-		assertTrue(nps.retrivePassword("a").getPassword().equals("ccc"));
-		assertTrue(nps.retrivePassword("a").getNotes().equals("dddd"));
-		assertTrue(nps.retrivePassword("c").getPassword().equals("eee"));
-		assertTrue(nps.retrivePassword("c").getNotes().equals("ffff"));
-		assertNull(nps.retrivePassword("b"));
+		assertTrue(ps.removePassword("b"));
+		assertEquals(ps.getAllStoredPasswordIds().size(), 2);
+		assertFalse(ps.getAllStoredPasswordIds().contains("b"));
+		assertTrue(ps.getAllStoredPasswordIds().contains("a"));
+		assertTrue(ps.getAllStoredPasswordIds().contains("c"));
+		assertTrue(ps.retrivePassword("a").getPassword().equals("ccc"));
+		assertTrue(ps.retrivePassword("a").getNotes().equals("dddd"));
+		assertTrue(ps.retrivePassword("c").getPassword().equals("eee"));
+		assertTrue(ps.retrivePassword("c").getNotes().equals("ffff"));
+		assertNull(ps.retrivePassword("b"));
 
-		assertTrue(nps.removePassword("c"));
-		assertEquals(nps.getAllStoredPasswordIds().size(), 1);
-		assertFalse(nps.getAllStoredPasswordIds().contains("b"));
-		assertTrue(nps.getAllStoredPasswordIds().contains("a"));
-		assertFalse(nps.getAllStoredPasswordIds().contains("c"));
-		assertTrue(nps.retrivePassword("a").getPassword().equals("ccc"));
-		assertTrue(nps.retrivePassword("a").getNotes().equals("dddd"));
-		assertNull(nps.retrivePassword("b"));
-		assertNull(nps.retrivePassword("c"));
+		assertTrue(ps.removePassword("c"));
+		assertEquals(ps.getAllStoredPasswordIds().size(), 1);
+		assertFalse(ps.getAllStoredPasswordIds().contains("b"));
+		assertTrue(ps.getAllStoredPasswordIds().contains("a"));
+		assertFalse(ps.getAllStoredPasswordIds().contains("c"));
+		assertTrue(ps.retrivePassword("a").getPassword().equals("ccc"));
+		assertTrue(ps.retrivePassword("a").getNotes().equals("dddd"));
+		assertNull(ps.retrivePassword("b"));
+		assertNull(ps.retrivePassword("c"));
 
-		assertTrue(nps.removePassword("a"));
-		assertEquals(nps.getAllStoredPasswordIds().size(), 0);
-		assertNull(nps.retrivePassword("c"));
-		assertNull(nps.retrivePassword("b"));
-		assertNull(nps.retrivePassword("a"));
+		assertTrue(ps.removePassword("a"));
+		assertEquals(ps.getAllStoredPasswordIds().size(), 0);
+		assertNull(ps.retrivePassword("c"));
+		assertNull(ps.retrivePassword("b"));
+		assertNull(ps.retrivePassword("a"));
 
 	}
 
@@ -181,16 +186,14 @@ public class NigoriPasswordStoreTest {
 	@Test
 	public void testPasswordList2() throws IOException,
 			NigoriCryptographyException, PasswordStoreException {
-		NigoriPasswordStore nps = new NigoriPasswordStore("test", "test",
-				"localhost", 8888, "nigori");
 
 		for (int i = 0; i < 100; i++) {
 			Password pass = new Password("a" + i, "bb" + (2 * i), "ccc", "dddd");
-			assertTrue(nps.storePassword(pass));
-			assertEquals(nps.getAllStoredPasswordIds().size(), i + 1);
+			assertTrue(ps.storePassword(pass));
+			assertEquals(ps.getAllStoredPasswordIds().size(), i + 1);
 		}
 
-		List<String> list = nps.getAllStoredPasswordIds();
+		List<String> list = ps.getAllStoredPasswordIds();
 		for (int i = 0; i < 100; i++) {
 			assertTrue(list.contains("a" + i));
 		}
@@ -209,8 +212,8 @@ public class NigoriPasswordStoreTest {
 		}
 
 		for (int i = 0; i < 100; i++) {
-			assertTrue(nps.removePassword("a" + indexes[i]));
-			List<String> storedpwds = nps.getAllStoredPasswordIds();
+			assertTrue(ps.removePassword("a" + indexes[i]));
+			List<String> storedpwds = ps.getAllStoredPasswordIds();
 			assertEquals(storedpwds.size(), (100 - i) - 1);
 			assertFalse(storedpwds.contains("a" + indexes[i]));
 		}
