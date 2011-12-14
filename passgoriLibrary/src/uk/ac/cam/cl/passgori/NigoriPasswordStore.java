@@ -153,7 +153,8 @@ public class NigoriPasswordStore implements IPasswordStore {
 			while (passHeadId != null) {
 				passwordIds.add(passHeadId);
 				final String nextHead = getNextElement(passHeadId);
-				if (nextHead == passHeadId) {
+				if (passHeadId.equals(nextHead)) {
+				  // TODO(dr24) this only checks for one element loops, multi-element loops still cause infinite loops
 					throw new PasswordStoreException("Password Store Corrupt");
 				}
 				passHeadId = getNextElement(passHeadId);
