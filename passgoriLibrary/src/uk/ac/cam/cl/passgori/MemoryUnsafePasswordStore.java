@@ -104,4 +104,11 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 		return mPasswordStore.put(aPassword.getId(), aPassword) != null;
 	}
 
+  @Override
+  public boolean destroyStore() throws PasswordStoreException {
+    mPasswordStore.clear();
+    mAuthorized = false;
+    return true;
+  }
+
 }

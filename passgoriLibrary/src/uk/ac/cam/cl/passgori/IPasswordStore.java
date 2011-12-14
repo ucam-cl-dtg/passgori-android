@@ -86,4 +86,11 @@ public interface IPasswordStore {
 	 */
 	public boolean storePassword(final Password aPassword)
 			throws PasswordStoreException;
+
+	/**
+	 * Destroy the store and all associated data
+	 * @return whether this succeeded
+	 * @throws PasswordStoreException
+	 */
+	public boolean destroyStore() throws PasswordStoreException;
 }

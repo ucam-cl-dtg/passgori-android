@@ -364,5 +364,19 @@ public class NigoriPasswordStore implements IPasswordStore {
 	private boolean register() throws IOException, NigoriCryptographyException {
 		return mNigoriStore.register();
 	}
+	private boolean unregister() throws IOException, NigoriCryptographyException {
+	  return mNigoriStore.unregister();
+	}
+
+  @Override
+  public boolean destroyStore() throws PasswordStoreException {
+    try {
+      return unregister();
+    } catch (NigoriCryptographyException e) {
+      throw new PasswordStoreException(e);
+    } catch (IOException e) {
+      throw new PasswordStoreException(e);
+    }
+  }
 
 }
