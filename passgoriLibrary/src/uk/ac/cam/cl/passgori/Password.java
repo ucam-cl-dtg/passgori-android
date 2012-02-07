@@ -15,9 +15,15 @@
  */
  
 package uk.ac.cam.cl.passgori;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+
+import com.google.nigori.common.MessageLibrary;
 /**
  * 
  */
+import com.google.nigori.common.Util;
 
 /**
  * A class representing password information
@@ -34,6 +40,7 @@ public class Password {
 
 	private final String mNotes;
 
+	private static final String CHARSET = MessageLibrary.CHARSET;
 	/**
 	 * A copy constructor.
 	 * 
@@ -46,6 +53,19 @@ public class Password {
 		mPassword = object.mPassword;
 		mNotes = object.mNotes;
 	}
+
+  public Password(String id, byte[] bytes) throws UnsupportedEncodingException {
+    int offset = 0;
+    byte[] username = Arrays.copyOfRange(bytes, Util.INT, Util.INT + Util.bin2int(bytes, offset));
+    offset += Util.INT + username.length;
+    byte[] password = Arrays.copyOfRange(bytes, offset + Util.INT, offset + Util.INT + Util.bin2int(bytes, offset));
+    offset += Util.INT + password.length;
+    byte[] notes = Arrays.copyOfRange(bytes, offset + Util.INT, offset + Util.INT + Util.bin2int(bytes, offset));
+    mId = id;
+    mUsername = new String(username, CHARSET);
+    mPassword = new String(password, CHARSET);
+    mNotes = new String(notes, CHARSET);
+  }
 
 	/**
 	 * Password object constructor.
@@ -82,5 +102,28 @@ public class Password {
 	public final String getUsername() {
 		return mUsername;
 	}
+
+  public byte[] toBytes() throws UnsupportedEncodingException {
+    byte[] username = mUsername.getBytes(CHARSET);
+    byte[] password = mPassword.getBytes(CHARSET);
+    byte[] notes = mNotes.getBytes(CHARSET);
+    byte[] answer = new byte[3 * Util.INT + username.length + password.length + notes.length];
+    int insert = 0;
+
+    System.arraycopy(Util.int2bin(username.length), 0, answer, insert, Util.INT);
+    insert += Util.INT;
+    System.arraycopy(username, 0, answer, insert, username.length);
+    insert += username.length;
+
+    System.arraycopy(Util.int2bin(password.length), 0, answer, insert, Util.INT);
+    insert += Util.INT;
+    System.arraycopy(password, 0, answer, insert, password.length);
+    insert += password.length;
+
+    System.arraycopy(Util.int2bin(notes.length), 0, answer, insert, Util.INT);
+    insert += Util.INT;
+    System.arraycopy(notes, 0, answer, insert, notes.length);
+    return answer;
+  }
 
 }
