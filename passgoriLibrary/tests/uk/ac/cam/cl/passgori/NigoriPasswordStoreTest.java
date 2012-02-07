@@ -17,9 +17,13 @@
 package uk.ac.cam.cl.passgori;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.everyItem;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,8 +33,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.nigori.client.HashMigoriDatastore;
+import com.google.nigori.client.MigoriDatastore;
 import com.google.nigori.client.NigoriCryptographyException;
-import com.google.nigori.client.NigoriDatastore;
+import com.google.nigori.client.HTTPNigoriDatastore;
+import com.google.nigori.common.Index;
+import com.google.nigori.common.RevValue;
 
 /**
  * 
@@ -47,8 +55,8 @@ public class NigoriPasswordStoreTest {
 
 	private final String TEST_USERNAME = "testaccount";
 	private final String TEST_PASSWORD = "test";
-	private final String TEST_SERVER = "nigori-dev.appspot.com";
-	private final int TEST_SERVER_PORT = 80;
+	private final String TEST_SERVER = "localhost";
+	private final int TEST_SERVER_PORT = 8888;
 	private final String TEST_SERVER_PREFIX = "nigori";
 
 	@BeforeClass
@@ -158,29 +166,22 @@ public class NigoriPasswordStoreTest {
 	@Test
 	public void testNigoriConnection() throws IOException,
 			NigoriCryptographyException {
-		NigoriDatastore mNigoriStore = null;
+		MigoriDatastore mMigoriStore = new HashMigoriDatastore(new HTTPNigoriDatastore(TEST_SERVER, TEST_SERVER_PORT,
+        TEST_SERVER_PREFIX, TEST_USERNAME, TEST_PASSWORD));
 
-		try {
-			mNigoriStore = new NigoriDatastore(TEST_SERVER, TEST_SERVER_PORT,
-					TEST_SERVER_PREFIX, TEST_USERNAME, TEST_PASSWORD);
-
-			mNigoriStore.authenticate();
-		} catch (UnsupportedEncodingException e) {
-			fail(e.getMessage());
-		} catch (NigoriCryptographyException e) {
-			fail(e.getMessage());
-		}
-
-		byte[] key = new byte[1];
+		Index index = new Index("1");
 		byte[] value = new byte[1];
-		key[0] = 1;
 		value[0] = 10;
 
-		mNigoriStore.register();
+    try {
+      mMigoriStore.register();
 
-		mNigoriStore.put(key, value);
-
-		assertEquals(mNigoriStore.get(key)[0], 10);
+      RevValue put = mMigoriStore.put(index, value);
+      assertArrayEquals(value,put.getValue());
+      assertThat(mMigoriStore.get(index),everyItem(equalTo(put)));
+    } finally {
+      mMigoriStore.unregister();
+		}
 	}
 
 	@Test

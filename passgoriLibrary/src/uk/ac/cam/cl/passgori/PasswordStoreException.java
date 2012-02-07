@@ -26,7 +26,9 @@ package uk.ac.cam.cl.passgori;
  * 
  */
 public class PasswordStoreException extends Exception {
-	public PasswordStoreException(Exception e) {
+  private static final long serialVersionUID = 1L;
+
+  public PasswordStoreException(Exception e) {
 		super(e);
 	}
 

@@ -17,13 +17,16 @@
 package uk.ac.cam.cl.passgori;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.nigori.client.HTTPNigoriDatastore;
+import com.google.nigori.client.HashMigoriDatastore;
+import com.google.nigori.client.MigoriDatastore;
 import com.google.nigori.client.NigoriCryptographyException;
-import com.google.nigori.client.NigoriDatastore;
+import com.google.nigori.common.Index;
+import com.google.nigori.common.RevValue;
+import com.google.nigori.common.Revision;
 
 /**
  * 
@@ -43,7 +46,7 @@ public class NigoriPasswordStore implements IPasswordStore {
 	/**
 	 * The Nigori client instance.
 	 */
-	private NigoriDatastore mNigoriStore;
+	private MigoriDatastore mMigoriStore;
 
 	/**
 	 * The username of the nigori password store
@@ -55,16 +58,6 @@ public class NigoriPasswordStore implements IPasswordStore {
 	private final String mServerURI;
 
 	private final int mPortNumber;
-
-	/**
-	 * Prefixes for storing keys.
-	 */
-	private static final String USERNAME_PREFIX = "_username";
-	private static final String PASSWORD_PREFIX = "_password";
-	private static final String NOTES_PREFIX = "_notes";
-	private static final String NEXT_PREFIX = "_next";
-	private static final String PREV_PREFIX = "_prev";
-	private static final String PASS_HEAD_PREFIX = "_passHead";
 
 	/**
 	 * Constructor that creates the store but performs no authorization.
@@ -118,10 +111,10 @@ public class NigoriPasswordStore implements IPasswordStore {
 			throws PasswordStoreException {
 		boolean authenticated = false;
 		try {
-			mNigoriStore = new NigoriDatastore(mServerURI, mPortNumber,
-					mServerPrefix, username, password);
+			mMigoriStore = new HashMigoriDatastore(new HTTPNigoriDatastore(mServerURI, mPortNumber,
+					mServerPrefix, username, password));
 
-			authenticated = mNigoriStore.authenticate();
+			authenticated = mMigoriStore.authenticate();
 			if (!authenticated)
 				authenticated = register();
 		} catch (Exception e) {
@@ -133,225 +126,69 @@ public class NigoriPasswordStore implements IPasswordStore {
 
 	@Override
 	public List<String> getAllStoredPasswordIds() throws PasswordStoreException {
-		AbstractList<String> passwordIds = new ArrayList<String>();
-
-		byte[] response = null;
 		try {
-			// Try getting the head of the password list
-			response = mNigoriStore.get(getPassHeadKey().getBytes());
+		  List<String> ids = new ArrayList<String>();
+		  for (Index idx : mMigoriStore.getIndices()){
+		    ids.add(idx.toString());
+		  }
+		  return ids;
 		} catch (IOException e) {
 			throw new PasswordStoreException(e.getMessage());
 		} catch (NigoriCryptographyException e) {
 			throw new PasswordStoreException(e.getMessage());
 		}
-
-		if (response != null) {
-			// a head exists, so retrieve the list!
-			String passHeadId = new String(response);
-
-			// recursively get all heads from the list
-			while (passHeadId != null) {
-				passwordIds.add(passHeadId);
-				final String nextHead = getNextElement(passHeadId);
-				if (passHeadId.equals(nextHead)) {
-				  // TODO(dr24) this only checks for one element loops, multi-element loops still cause infinite loops
-					throw new PasswordStoreException("Password Store Corrupt");
-				}
-				passHeadId = getNextElement(passHeadId);
-			}
-		}
-		return passwordIds;
 	}
 
-	@Override
-	public boolean removePassword(String aId) throws PasswordStoreException {
-		try {
-			// Get Password's previous and next (if any)
-			final byte[] previousId = mNigoriStore.get(getPrevKey(aId)
-					.getBytes());
-			final byte[] nextId = mNigoriStore.get(getNextKey(aId).getBytes());
+  @Override
+  public boolean removePassword(String aId) throws PasswordStoreException {
+    try {
+      Index index = new Index(aId);
+      RevValue current = mMigoriStore.getHead(index, new PasswordMerger());
+      if (current != null) {
+        return mMigoriStore.deleteIndex(index, current.getRevision());
+      } else {
+        return mMigoriStore.deleteIndex(index, Revision.EMPTY);
+      }
 
-			// Update neighboring linked-list items
-			if ((previousId != null) && (nextId != null)) {
-				mNigoriStore.put(getNextKey(new String(previousId)).getBytes(),
-						nextId);
-				mNigoriStore.put(getPrevKey(new String(nextId)).getBytes(),
-						previousId);
-			} else if ((nextId == null) && (previousId == null)) {
-				mNigoriStore.delete(getPassHeadKey().getBytes());
-			} else if (nextId == null) {
-				mNigoriStore.delete(getNextKey(new String(previousId))
-						.getBytes());
-			} else if (previousId == null) {
-				mNigoriStore.delete(getPrevKey(new String(nextId)).getBytes());
-				mNigoriStore.put(getPassHeadKey().getBytes(), nextId);
-			}
+    } catch (NigoriCryptographyException e) {
+      throw new PasswordStoreException(e.getMessage());
+    } catch (IOException e) {
+      throw new PasswordStoreException(e.getMessage());
+    }
+  }
 
-			return (mNigoriStore.delete(getUsernameKey(aId).getBytes())
-					&& mNigoriStore.delete(getPasswordKey(aId).getBytes()) && mNigoriStore
-						.delete(getNotesKey(aId).getBytes()));
-
-		} catch (UnsupportedEncodingException e) {
-			throw new PasswordStoreException(e.getMessage());
-		} catch (NigoriCryptographyException e) {
-			throw new PasswordStoreException(e.getMessage());
-		} catch (IOException e) {
-			throw new PasswordStoreException(e.getMessage());
-		}
-
-	}
-
-	@Override
-	public Password retrivePassword(String aId) throws PasswordStoreException {
-
-		byte[] username = null;
-		byte[] password = null;
-		byte[] notes = null;
-		try {
-			username = mNigoriStore.get(getUsernameKey(aId).getBytes());
-			password = mNigoriStore.get(getPasswordKey(aId).getBytes());
-			notes = mNigoriStore.get(getNotesKey(aId).getBytes());
-		} catch (IOException e) {
-			throw new PasswordStoreException(e.getMessage());
-		} catch (NigoriCryptographyException e) {
-			throw new PasswordStoreException(e.getMessage());
-		}
-
-		if ((username != null) && (password != null) && (notes != null)) {
-			return new Password(aId, new String(username),
-					new String(password), new String(notes));
-		}
-		return null;
-	}
+  @Override
+  public Password retrivePassword(String aId) throws PasswordStoreException {
+    try {
+      RevValue current = mMigoriStore.getHead(new Index(aId), new PasswordMerger());
+      if (current == null) {
+        return null;
+      }
+      return new Password(aId, current.getValue());
+    } catch (IOException e) {
+      throw new PasswordStoreException(e.getMessage());
+    } catch (NigoriCryptographyException e) {
+      throw new PasswordStoreException(e.getMessage());
+    }
+  }
 
 	@Override
 	public boolean storePassword(Password aPassword)
 			throws PasswordStoreException {
 		try {
-			final byte[] oldHeadBytes = mNigoriStore.get(getPassHeadKey()
-					.getBytes());
-			if (oldHeadBytes != null) {
-				// Store next on linked list
-				mNigoriStore.put(getNextKey(aPassword.getId()).getBytes(),
-						oldHeadBytes);
-
-				String oldHead = new String(oldHeadBytes);
-				// Store prev key
-				mNigoriStore.put(getPrevKey(oldHead).getBytes(), aPassword
-						.getId().getBytes());
-			}
-
-			// Store username
-			mNigoriStore.put(getUsernameKey(aPassword.getId()).getBytes(),
-					aPassword.getUsername().getBytes());
-
-			// Store password
-			mNigoriStore.put(getPasswordKey(aPassword.getId()).getBytes(),
-					aPassword.getPassword().getBytes());
-
-			// Store password
-			mNigoriStore.put(getNotesKey(aPassword.getId()).getBytes(),
-					aPassword.getNotes().getBytes());
-
-			// Store next key
-			mNigoriStore.put(getPassHeadKey().getBytes(), aPassword.getId()
-					.getBytes());
-
+		  Index index = new Index(aPassword.getId());
+      RevValue current = mMigoriStore.getHead(index, new PasswordMerger());
+      if (current != null) {
+        mMigoriStore.put(index, aPassword.toBytes(), current);
+      } else {
+        mMigoriStore.put(index, aPassword.toBytes());
+      }
 		} catch (IOException e) {
 			throw new PasswordStoreException(e.getMessage());
 		} catch (NigoriCryptographyException e) {
 			throw new PasswordStoreException(e.getMessage());
 		}
 		return true;
-	}
-
-	/**
-	 * Returns the next element of the linked list, given the current element
-	 * 
-	 * @param currentElement
-	 * @return
-	 * @throws PasswordStoreException
-	 */
-	private String getNextElement(final String currentElement)
-			throws PasswordStoreException {
-		final String key = getNextKey(currentElement);
-		byte[] response = null;
-		try {
-			response = mNigoriStore.get(key.getBytes());
-		} catch (IOException e) {
-			throw new PasswordStoreException(e.getMessage());
-		} catch (NigoriCryptographyException e) {
-			throw new PasswordStoreException(e.getMessage());
-		}
-		if (response == null)
-			return null;
-		return new String(response);
-	}
-
-	/**
-	 * Returns the key which is used to store the next's password id.
-	 * 
-	 * @param passwordId
-	 *            the current password id
-	 * @return a string representing the key
-	 */
-	private final String getNextKey(final String passwordId) {
-		return mUserName + "_" + passwordId + NEXT_PREFIX;
-	}
-
-	/**
-	 * Returns the key which is used to store the note of the current password.
-	 * 
-	 * @param passwordId
-	 *            the current password id
-	 * @return a string representing the key
-	 */
-	private final String getNotesKey(final String passwordId) {
-		return mUserName + "_" + passwordId + NOTES_PREFIX;
-	}
-
-	/**
-	 * Returns the key which is used to store the password linked list head.
-	 * 
-	 * @return a string representing the key
-	 */
-	private final String getPassHeadKey() {
-		return mUserName + PASS_HEAD_PREFIX;
-	}
-
-	/**
-	 * Returns the key which is used to store the password of the current
-	 * password.
-	 * 
-	 * @param passwordId
-	 *            the current password id
-	 * @return a string representing the key
-	 */
-	private final String getPasswordKey(final String passwordId) {
-		return mUserName + "_" + passwordId + PASSWORD_PREFIX;
-	}
-
-	/**
-	 * Returns the key which is used to store the previous' password id.
-	 * 
-	 * @param passwordId
-	 *            the current password id
-	 * @return a string representing the key
-	 */
-	private final String getPrevKey(final String passwordId) {
-		return mUserName + "_" + passwordId + PREV_PREFIX;
-	}
-
-	/**
-	 * Returns the key which is used to store the username of the current
-	 * password.
-	 * 
-	 * @param passwordId
-	 *            the current password id
-	 * @return a string representing the key
-	 */
-	private final String getUsernameKey(final String passwordId) {
-		return mUserName + "_" + passwordId + USERNAME_PREFIX;
 	}
 
 	/**
@@ -362,10 +199,10 @@ public class NigoriPasswordStore implements IPasswordStore {
 	 * @throws NigoriCryptographyException
 	 */
 	private boolean register() throws IOException, NigoriCryptographyException {
-		return mNigoriStore.register();
+		return mMigoriStore.register();
 	}
 	private boolean unregister() throws IOException, NigoriCryptographyException {
-	  return mNigoriStore.unregister();
+	  return mMigoriStore.unregister();
 	}
 
   @Override

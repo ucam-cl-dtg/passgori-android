@@ -39,6 +39,7 @@ public class Password {
 	private final String mPassword;
 
 	private final String mNotes;
+	private final long mGeneratedAt;
 
 	private static final String CHARSET = MessageLibrary.CHARSET;
 	/**
@@ -52,22 +53,10 @@ public class Password {
 		mUsername = object.mUsername;
 		mPassword = object.mPassword;
 		mNotes = object.mNotes;
+		mGeneratedAt = System.currentTimeMillis(); 
 	}
 
-  public Password(String id, byte[] bytes) throws UnsupportedEncodingException {
-    int offset = 0;
-    byte[] username = Arrays.copyOfRange(bytes, Util.INT, Util.INT + Util.bin2int(bytes, offset));
-    offset += Util.INT + username.length;
-    byte[] password = Arrays.copyOfRange(bytes, offset + Util.INT, offset + Util.INT + Util.bin2int(bytes, offset));
-    offset += Util.INT + password.length;
-    byte[] notes = Arrays.copyOfRange(bytes, offset + Util.INT, offset + Util.INT + Util.bin2int(bytes, offset));
-    mId = id;
-    mUsername = new String(username, CHARSET);
-    mPassword = new String(password, CHARSET);
-    mNotes = new String(notes, CHARSET);
-  }
-
-	/**
+  /**
 	 * Password object constructor.
 	 * 
 	 * @param aId
@@ -85,9 +74,26 @@ public class Password {
 		mUsername = aUsername;
 		mPassword = aPassword;
 		mNotes = aNotes;
+		mGeneratedAt = System.currentTimeMillis();
 	}
 
-	public final String getId() {
+	public Password(String id, byte[] bytes) throws UnsupportedEncodingException {
+    int offset = 0;
+    byte[] username = Arrays.copyOfRange(bytes, Util.INT, Util.INT + Util.bin2int(bytes, offset));
+    offset += Util.INT + username.length;
+    byte[] password = Arrays.copyOfRange(bytes, offset + Util.INT, offset + Util.INT + Util.bin2int(bytes, offset));
+    offset += Util.INT + password.length;
+    byte[] notes = Arrays.copyOfRange(bytes, offset + Util.INT, offset + Util.INT + Util.bin2int(bytes, offset));
+    offset += Util.INT + notes.length;
+
+    mId = id;
+    mUsername = new String(username, CHARSET);
+    mPassword = new String(password, CHARSET);
+    mNotes = new String(notes, CHARSET);
+    mGeneratedAt = Util.bin2long(bytes, offset);
+  }
+
+  public final String getId() {
 		return mId;
 	}
 
@@ -107,7 +113,7 @@ public class Password {
     byte[] username = mUsername.getBytes(CHARSET);
     byte[] password = mPassword.getBytes(CHARSET);
     byte[] notes = mNotes.getBytes(CHARSET);
-    byte[] answer = new byte[3 * Util.INT + username.length + password.length + notes.length];
+    byte[] answer = new byte[3 * Util.INT + username.length + password.length + notes.length + Util.LONG];
     int insert = 0;
 
     System.arraycopy(Util.int2bin(username.length), 0, answer, insert, Util.INT);
@@ -123,6 +129,10 @@ public class Password {
     System.arraycopy(Util.int2bin(notes.length), 0, answer, insert, Util.INT);
     insert += Util.INT;
     System.arraycopy(notes, 0, answer, insert, notes.length);
+    insert += notes.length;
+
+    System.arraycopy(Util.long2bin(mGeneratedAt),0, answer, insert, Util.LONG);
+
     return answer;
   }
 
