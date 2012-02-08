@@ -31,7 +31,7 @@ import com.google.nigori.common.Util;
  * @author Miltiadis Allamanis
  * 
  */
-public class Password {
+public class Password implements Comparable<Password> {
 
 	private final String mId;
 
@@ -53,7 +53,7 @@ public class Password {
 		mUsername = object.mUsername;
 		mPassword = object.mPassword;
 		mNotes = object.mNotes;
-		mGeneratedAt = System.currentTimeMillis(); 
+		mGeneratedAt = object.mGeneratedAt; 
 	}
 
   /**
@@ -77,7 +77,7 @@ public class Password {
 		mGeneratedAt = System.currentTimeMillis();
 	}
 
-	public Password(String id, byte[] bytes) throws UnsupportedEncodingException {
+	public Password(String id, byte[] bytes) {
     int offset = 0;
     byte[] username = Arrays.copyOfRange(bytes, Util.INT, Util.INT + Util.bin2int(bytes, offset));
     offset += Util.INT + username.length;
@@ -87,9 +87,13 @@ public class Password {
     offset += Util.INT + notes.length;
 
     mId = id;
-    mUsername = new String(username, CHARSET);
-    mPassword = new String(password, CHARSET);
-    mNotes = new String(notes, CHARSET);
+    try {
+      mUsername = new String(username, CHARSET);
+      mPassword = new String(password, CHARSET);
+      mNotes = new String(notes, CHARSET);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
     mGeneratedAt = Util.bin2long(bytes, offset);
   }
 
@@ -109,31 +113,112 @@ public class Password {
 		return mUsername;
 	}
 
-  public byte[] toBytes() throws UnsupportedEncodingException {
-    byte[] username = mUsername.getBytes(CHARSET);
-    byte[] password = mPassword.getBytes(CHARSET);
-    byte[] notes = mNotes.getBytes(CHARSET);
-    byte[] answer = new byte[3 * Util.INT + username.length + password.length + notes.length + Util.LONG];
-    int insert = 0;
+  public byte[] toBytes() {
+    try {
+      byte[] username = mUsername.getBytes(CHARSET);
+      byte[] password = mPassword.getBytes(CHARSET);
+      byte[] notes = mNotes.getBytes(CHARSET);
 
-    System.arraycopy(Util.int2bin(username.length), 0, answer, insert, Util.INT);
-    insert += Util.INT;
-    System.arraycopy(username, 0, answer, insert, username.length);
-    insert += username.length;
+      byte[] answer =
+          new byte[3 * Util.INT + username.length + password.length + notes.length + Util.LONG];
+      int insert = 0;
 
-    System.arraycopy(Util.int2bin(password.length), 0, answer, insert, Util.INT);
-    insert += Util.INT;
-    System.arraycopy(password, 0, answer, insert, password.length);
-    insert += password.length;
+      System.arraycopy(Util.int2bin(username.length), 0, answer, insert, Util.INT);
+      insert += Util.INT;
+      System.arraycopy(username, 0, answer, insert, username.length);
+      insert += username.length;
 
-    System.arraycopy(Util.int2bin(notes.length), 0, answer, insert, Util.INT);
-    insert += Util.INT;
-    System.arraycopy(notes, 0, answer, insert, notes.length);
-    insert += notes.length;
+      System.arraycopy(Util.int2bin(password.length), 0, answer, insert, Util.INT);
+      insert += Util.INT;
+      System.arraycopy(password, 0, answer, insert, password.length);
+      insert += password.length;
 
-    System.arraycopy(Util.long2bin(mGeneratedAt),0, answer, insert, Util.LONG);
+      System.arraycopy(Util.int2bin(notes.length), 0, answer, insert, Util.INT);
+      insert += Util.INT;
+      System.arraycopy(notes, 0, answer, insert, notes.length);
+      insert += notes.length;
 
-    return answer;
+      System.arraycopy(Util.long2bin(mGeneratedAt), 0, answer, insert, Util.LONG);
+
+      return answer;
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public int compareTo(Password other) {
+    if (other == null) {
+      throw new NullPointerException("Can't compare with null passwords");
+    }
+    if (this.equals(other)) {
+      return 0;
+    } else if (mGeneratedAt < other.mGeneratedAt) {
+      return -1;
+    } else if (mGeneratedAt > other.mGeneratedAt) {
+      return 1;
+    } else {
+      int id = mId.compareTo(other.mId);
+      if (id != 0) {
+        return id;
+      }
+      int username = mUsername.compareTo(other.mUsername);
+      if (username != 0) {
+        return username;
+      }
+      int password = mPassword.compareTo(other.mPassword);
+      if (password != 0) {
+        return password;
+      }
+      int notes = mNotes.compareTo(other.mNotes);
+      if (notes != 0) {
+        return notes;
+      }
+      return 0;// this shouldn't happen due to the .equals above.
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((mId == null) ? 0 : mId.hashCode());
+    result = prime * result + ((mNotes == null) ? 0 : mNotes.hashCode());
+    result = prime * result + ((mPassword == null) ? 0 : mPassword.hashCode());
+    result = prime * result + ((mUsername == null) ? 0 : mUsername.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Password other = (Password) obj;
+    if (mId == null) {
+      if (other.mId != null)
+        return false;
+    } else if (!mId.equals(other.mId))
+      return false;
+    if (mNotes == null) {
+      if (other.mNotes != null)
+        return false;
+    } else if (!mNotes.equals(other.mNotes))
+      return false;
+    if (mPassword == null) {
+      if (other.mPassword != null)
+        return false;
+    } else if (!mPassword.equals(other.mPassword))
+      return false;
+    if (mUsername == null) {
+      if (other.mUsername != null)
+        return false;
+    } else if (!mUsername.equals(other.mUsername))
+      return false;
+    return true;
   }
 
 }
