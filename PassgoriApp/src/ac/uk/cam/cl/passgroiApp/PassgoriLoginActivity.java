@@ -40,7 +40,7 @@ import android.widget.TextView;
  * @author Miltiadis Allamanis
  * 
  */
-public class PassgoriLogingActivity extends Activity {
+public class PassgoriLoginActivity extends Activity {
 	private class FailureNotification implements Runnable {
 
 		private final String mMessage;
@@ -66,10 +66,11 @@ public class PassgoriLogingActivity extends Activity {
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			PasswordStorageBinder binder = (PasswordStorageBinder) service;
 			try {
+			  EditText usernameField = (EditText) findViewById(R.id.loginUsernameEditView);
 				EditText passwordField = (EditText) findViewById(R.id.passgoriPassword);
-				binder.createStore(passwordField.getText().toString());
+				binder.createStore(usernameField.getText().toString(),passwordField.getText().toString());
 
-				Intent intent = new Intent(PassgoriLogingActivity.this,
+				Intent intent = new Intent(PassgoriLoginActivity.this,
 						PassgoriListPasswordsActivity.class);
 				startActivityForResult(intent, 0);
 
@@ -114,7 +115,7 @@ public class PassgoriLogingActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		TextView userNameField = (TextView) findViewById(R.id.loginUsernameTextView);
+		EditText userNameField = (EditText) findViewById(R.id.loginUsernameEditView);
 		PassgoriConfigurations pc = new PassgoriConfigurations(this);
 
 		userNameField.setText(pc.getUsername());
