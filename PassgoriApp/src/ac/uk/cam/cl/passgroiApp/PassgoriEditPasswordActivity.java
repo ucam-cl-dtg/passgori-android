@@ -145,14 +145,15 @@ public class PassgoriEditPasswordActivity extends Activity {
 		public void run() {
 			try {
 
-				// But if we changed the title, then we have to delete the old
-				// id password too!
-				if (getIntent().getExtras() != null)
-					mPasswordStore.removePassword(getIntent().getExtras()
-							.getString("passwordId"));
-				// TODO: This inherently unsafe. What happens if we first delete
-				// the password, but fail to update it?
-				mPasswordStore.storePassword(mPassword);
+        mPasswordStore.storePassword(mPassword);
+        // But if we changed the title, then we have to delete the old
+        // id password too!
+        if (getIntent().getExtras() != null) {
+          String delteId = getIntent().getExtras().getString("passwordId");
+          if (!mPassword.getId().equals(delteId)) {// Only delete it if we didn't just add it.
+            mPasswordStore.removePassword(delteId);
+          }
+        }
 				runOnUiThread(new PasswordSaved());
 			} catch (PasswordStoreException e) {
 				runOnUiThread(new FailureNotification(e.getMessage()));
