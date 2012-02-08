@@ -92,6 +92,7 @@ public class PassgoriLoginActivity extends Activity {
 	private ProgressDialog mLoadingDialog;
 
 	private Button mLoginButton;
+	private Button mConfigureButton;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -129,6 +130,18 @@ public class PassgoriLoginActivity extends Activity {
 				connectAndLogin();
 			}
 		});
+    mConfigureButton = (Button) findViewById(R.id.configureButton);
+
+    mConfigureButton.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        Intent configIntent =
+            new Intent(PassgoriLoginActivity.this, PassgoriConfigurationsEditor.class);
+        startActivityForResult(configIntent, 0);
+
+      }
+    });
 
 	}
 

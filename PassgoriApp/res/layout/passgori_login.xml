@@ -37,12 +37,18 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:inputType="textPassword"/>
-          
-     <Button 
-				    android:id="@+id/unlockButton"
-				    android:layout_width="150dip"
-			        android:layout_height="wrap_content"
-			        android:text="@string/unlockLabel"/>
+
+     <Button
+        android:id="@+id/unlockButton"
+        android:layout_width="150dip"
+        android:layout_height="wrap_content"
+        android:text="@string/unlockLabel" />
+
+    <Button
+        android:id="@+id/configureButton"
+        android:layout_width="150dip"
+        android:layout_height="wrap_content"
+        android:text="@string/configurePassgori" />
      
      <TextView
         android:id="@+id/loginerror"
