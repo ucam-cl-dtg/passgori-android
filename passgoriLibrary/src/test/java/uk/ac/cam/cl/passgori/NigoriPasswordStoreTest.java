@@ -16,14 +16,14 @@
  
 package uk.ac.cam.cl.passgori;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.everyItem;
-import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,12 +33,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.nigori.client.CryptoNigoriDatastore;
 import com.google.nigori.client.HashMigoriDatastore;
 import com.google.nigori.client.MigoriDatastore;
 import com.google.nigori.client.NigoriCryptographyException;
-import com.google.nigori.client.HTTPNigoriDatastore;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * 
@@ -165,8 +166,8 @@ public class NigoriPasswordStoreTest {
 
 	@Test
 	public void testNigoriConnection() throws IOException,
-			NigoriCryptographyException {
-		MigoriDatastore mMigoriStore = new HashMigoriDatastore(new HTTPNigoriDatastore(TEST_SERVER, TEST_SERVER_PORT,
+			NigoriCryptographyException, UnauthorisedException {
+		MigoriDatastore mMigoriStore = new HashMigoriDatastore(new CryptoNigoriDatastore(TEST_SERVER, TEST_SERVER_PORT,
         TEST_SERVER_PREFIX, TEST_USERNAME, TEST_PASSWORD));
 
 		Index index = new Index("1");

@@ -13,6 +13,7 @@ import com.google.nigori.client.MigoriDatastore.MigoriMerger;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.UnauthorisedException;
 
 public class PasswordMerger implements MigoriMerger {
 
@@ -20,7 +21,7 @@ public class PasswordMerger implements MigoriMerger {
 
   @Override
   public RevValue merge(MigoriDatastore store, Index index, Collection<RevValue> heads)
-      throws IOException, NigoriCryptographyException {
+      throws IOException, NigoriCryptographyException, UnauthorisedException {
     List<Password> passwords = new ArrayList<Password>();
     Map<Password, RevValue> mapBack = new HashMap<Password, RevValue>();
     for (RevValue value : heads) {
@@ -45,7 +46,7 @@ public class PasswordMerger implements MigoriMerger {
   }
 
   private void findEquivalences(MigoriDatastore store, Index index, List<Password> passwords,
-      Map<Password, RevValue> mapBack) throws IOException, NigoriCryptographyException {
+      Map<Password, RevValue> mapBack) throws IOException, NigoriCryptographyException, UnauthorisedException {
     Collections.sort(passwords);
     // Daniel's magic find things which are the same and merge them together by means of delicate loops algorithm
     // NEEDS thorough testing, many edge cases.
@@ -91,7 +92,7 @@ public class PasswordMerger implements MigoriMerger {
 
   private PasswordValue putEquivalence(MigoriDatastore store, Index index,
       Collection<Password> equivalence, Map<Password, RevValue> mapBack) throws IOException,
-      NigoriCryptographyException {
+      NigoriCryptographyException, UnauthorisedException {
     List<RevValue> values = new ArrayList<RevValue>();
     Password value = null;
     for (Password password : equivalence) {

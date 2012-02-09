@@ -20,13 +20,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.nigori.client.HTTPNigoriDatastore;
+import com.google.nigori.client.CryptoNigoriDatastore;
 import com.google.nigori.client.HashMigoriDatastore;
 import com.google.nigori.client.MigoriDatastore;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * 
@@ -111,14 +112,14 @@ public class NigoriPasswordStore implements IPasswordStore {
 			throws PasswordStoreException {
 		boolean authenticated = false;
 		try {
-			mMigoriStore = new HashMigoriDatastore(new HTTPNigoriDatastore(mServerURI, mPortNumber,
+			mMigoriStore = new HashMigoriDatastore(new CryptoNigoriDatastore(mServerURI, mPortNumber,
 					mServerPrefix, username, password));
 
 			authenticated = mMigoriStore.authenticate();
 			if (!authenticated)
 				authenticated = register();
 		} catch (Exception e) {
-			throw new PasswordStoreException(e.getMessage());
+			throw new PasswordStoreException(e);
 		}
 
 		return authenticated;
@@ -133,10 +134,12 @@ public class NigoriPasswordStore implements IPasswordStore {
 		  }
 		  return ids;
 		} catch (IOException e) {
-			throw new PasswordStoreException(e.getMessage());
+			throw new PasswordStoreException(e);
 		} catch (NigoriCryptographyException e) {
-			throw new PasswordStoreException(e.getMessage());
-		}
+			throw new PasswordStoreException(e);
+		} catch (UnauthorisedException e) {
+		  throw new PasswordStoreException(e);
+    }
 	}
 
   @Override
@@ -151,9 +154,11 @@ public class NigoriPasswordStore implements IPasswordStore {
       }
 
     } catch (NigoriCryptographyException e) {
-      throw new PasswordStoreException(e.getMessage());
+      throw new PasswordStoreException(e);
     } catch (IOException e) {
-      throw new PasswordStoreException(e.getMessage());
+      throw new PasswordStoreException(e);
+    } catch (UnauthorisedException e) {
+      throw new PasswordStoreException(e);
     }
   }
 
@@ -166,9 +171,11 @@ public class NigoriPasswordStore implements IPasswordStore {
       }
       return new Password(aId, current.getValue());
     } catch (IOException e) {
-      throw new PasswordStoreException(e.getMessage());
+      throw new PasswordStoreException(e);
     } catch (NigoriCryptographyException e) {
-      throw new PasswordStoreException(e.getMessage());
+      throw new PasswordStoreException(e);
+    } catch (UnauthorisedException e) {
+      throw new PasswordStoreException(e);
     }
   }
 
@@ -184,10 +191,12 @@ public class NigoriPasswordStore implements IPasswordStore {
         mMigoriStore.put(index, aPassword.toBytes());
       }
 		} catch (IOException e) {
-			throw new PasswordStoreException(e.getMessage());
+		  throw new PasswordStoreException(e);
 		} catch (NigoriCryptographyException e) {
-			throw new PasswordStoreException(e.getMessage());
-		}
+		  throw new PasswordStoreException(e);
+		} catch (UnauthorisedException e) {
+		  throw new PasswordStoreException(e);
+    }
 		return true;
 	}
 
@@ -201,7 +210,7 @@ public class NigoriPasswordStore implements IPasswordStore {
 	private boolean register() throws IOException, NigoriCryptographyException {
 		return mMigoriStore.register();
 	}
-	private boolean unregister() throws IOException, NigoriCryptographyException {
+	private boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException {
 	  return mMigoriStore.unregister();
 	}
 
@@ -212,6 +221,8 @@ public class NigoriPasswordStore implements IPasswordStore {
     } catch (NigoriCryptographyException e) {
       throw new PasswordStoreException(e);
     } catch (IOException e) {
+      throw new PasswordStoreException(e);
+    } catch (UnauthorisedException e) {
       throw new PasswordStoreException(e);
     }
   }
