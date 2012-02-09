@@ -16,18 +16,22 @@
  
 package uk.ac.cam.cl.passgori;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.nigori.client.CryptoNigoriDatastore;
 import com.google.nigori.client.HashMigoriDatastore;
+import com.google.nigori.client.LocalFirstSyncingNigoriDatastore;
 import com.google.nigori.client.MigoriDatastore;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
 import com.google.nigori.common.UnauthorisedException;
+import com.google.nigori.server.DatabaseNigoriProtocol;
+import com.google.nigori.server.JEDatabase;
 
 /**
  * 
@@ -60,6 +64,8 @@ public class NigoriPasswordStore implements IPasswordStore {
 
 	private final int mPortNumber;
 
+  private File mDir;
+
 	/**
 	 * Constructor that creates the store but performs no authorization.
 	 * 
@@ -81,6 +87,7 @@ public class NigoriPasswordStore implements IPasswordStore {
 	/**
 	 * Nigori Password Store Constructor, that automatically performs
 	 * authorization.
+	 * @param dir directory which we can store the local database in 
 	 * 
 	 * @param username
 	 *            the username of the Nigori server
@@ -94,10 +101,10 @@ public class NigoriPasswordStore implements IPasswordStore {
 	 *            a server prefix
 	 * @throws PasswordStoreException
 	 */
-	public NigoriPasswordStore(final String username, final String password,
+	public NigoriPasswordStore(File dir, final String username, final String password,
 			final String serverURI, final int portNumber,
 			final String serverPrefix) throws PasswordStoreException {
-
+	  mDir = dir;
 		mPortNumber = portNumber;
 		mServerPrefix = serverPrefix;
 		mServerURI = serverURI;
@@ -109,18 +116,26 @@ public class NigoriPasswordStore implements IPasswordStore {
 
 	@Override
 	public boolean authorize(String username, String password)
-			throws PasswordStoreException {
-		boolean authenticated = false;
-		try {
-			mMigoriStore = new HashMigoriDatastore(new CryptoNigoriDatastore(mServerURI, mPortNumber,
-					mServerPrefix, username, password));
+	    throws PasswordStoreException {
+	  boolean authenticated = false;
+	  try {
+	    //mMigoriStore = new HashMigoriDatastore(new CryptoNigoriDatastore(mServerURI, mPortNumber, mServerPrefix, username, password));
+	    File jeDir = new File(mDir,"je-database/");
+	    if (!jeDir.exists()){
+	      if (!jeDir.mkdir()) {
+	        throw new PasswordStoreException("Could not create dabase folder: " + jeDir);
+	      }
+	    }
+	    mMigoriStore = new HashMigoriDatastore(new LocalFirstSyncingNigoriDatastore(
+	        new CryptoNigoriDatastore(new DatabaseNigoriProtocol(new JEDatabase(jeDir)), username, password, "je"),
+	        new CryptoNigoriDatastore(mServerURI, mPortNumber, mServerPrefix, username, password)));
 
-			authenticated = mMigoriStore.authenticate();
-			if (!authenticated)
-				authenticated = register();
-		} catch (Exception e) {
-			throw new PasswordStoreException(e);
-		}
+	    authenticated = mMigoriStore.authenticate();
+	    if (!authenticated)
+	      authenticated = register();
+	  } catch (Exception e) {
+	    throw new PasswordStoreException(e);
+	  }
 
 		return authenticated;
 	}

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.everyItem;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -59,6 +60,7 @@ public class NigoriPasswordStoreTest {
 	private final String TEST_SERVER = "localhost";
 	private final int TEST_SERVER_PORT = 8888;
 	private final String TEST_SERVER_PREFIX = "nigori";
+	private final File je = new File("je-test-dir/");
 
 	@BeforeClass
 	public static void ensureClean() throws PasswordStoreException {
@@ -69,7 +71,9 @@ public class NigoriPasswordStoreTest {
 
 	@Before
 	public void createStore() throws PasswordStoreException {
-	  ps = new NigoriPasswordStore(TEST_USERNAME,
+	  je.mkdirs();
+	  je.deleteOnExit();
+	  ps = new NigoriPasswordStore(je, TEST_USERNAME,
         TEST_PASSWORD, TEST_SERVER, TEST_SERVER_PORT,
         TEST_SERVER_PREFIX);
 	}
@@ -77,6 +81,8 @@ public class NigoriPasswordStoreTest {
 	@After
 	public void destroyStore() throws PasswordStoreException {
 	  ps.destroyStore();
+	  je.delete();
+	  //TODO(drt24) do the delete properly
 	}
 
 	@Test

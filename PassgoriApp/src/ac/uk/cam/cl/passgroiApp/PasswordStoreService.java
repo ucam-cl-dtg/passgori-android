@@ -23,6 +23,7 @@ import uk.ac.cam.cl.passgori.IPasswordStore;
 import uk.ac.cam.cl.passgori.NigoriPasswordStore;
 import uk.ac.cam.cl.passgori.PasswordStoreException;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
@@ -42,9 +43,10 @@ public class PasswordStoreService extends Service {
 	public class PasswordStorageBinder extends Binder {
 		public void createStore(String username, String password) throws PasswordStoreException {
 			try {
+			  Context context = getBaseContext();
 				PassgoriConfigurations pc = new PassgoriConfigurations(
-						getBaseContext());
-				mPasswordStore = new NigoriPasswordStore(username,
+				    context);
+				mPasswordStore = new NigoriPasswordStore(context.getFilesDir(), username,
 						password, pc.getServer(), pc.getPort(),
 						pc.getServerPrefix());
 				// TODO: dynamically create type based on stored parameters
