@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>PassgoriApp</name>
+	<name>passgori-app</name>
 	<comment></comment>
 	<projects>
-		<project>passgoriLibrary</project>
+		<project>passgori-library</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
