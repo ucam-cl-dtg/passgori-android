@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -84,6 +85,39 @@ public class NigoriPasswordStoreTest {
 	  je.delete();
 	  //TODO(drt24) do the delete properly
 	}
+
+  @AfterClass
+  public static void deleteDatabase() {
+    File dataDir = new File("je-test-dir/");
+    if (dataDir.exists()){
+      deleteDir(dataDir);
+      dataDir.delete();
+    }
+  }
+
+  /**
+   * Deletes all files and subdirectories under dir. Returns true if all deletions were successful.
+   * If a deletion fails, the method stops attempting to delete and returns false.
+   * 
+   * From http://www.exampledepot.com/egs/java.io/DeleteDir.html
+   * 
+   * @param dir
+   * @return
+   */
+  public static boolean deleteDir(File dir) {
+    if (dir.isDirectory()) {
+      String[] children = dir.list();
+      for (int i = 0; i < children.length; i++) {
+        boolean success = deleteDir(new File(dir, children[i]));
+        if (!success) {
+          return false;
+        }
+      }
+    }
+
+    // The directory is now empty so delete it
+    return dir.delete();
+  }
 
 	@Test
 	public void testAddKey() throws IOException, NigoriCryptographyException,
