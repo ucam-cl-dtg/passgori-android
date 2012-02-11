@@ -161,11 +161,11 @@ public class NigoriPasswordStore implements IPasswordStore {
   public boolean removePassword(String aId) throws PasswordStoreException {
     try {
       Index index = new Index(aId);
-      RevValue current = mMigoriStore.getHead(index, new PasswordMerger());
+      RevValue current = mMigoriStore.getMerging(index, new PasswordMerger());
       if (current != null) {
-        return mMigoriStore.deleteIndex(index, current.getRevision());
+        return mMigoriStore.removeIndex(index, current.getRevision());
       } else {
-        return mMigoriStore.deleteIndex(index, Revision.EMPTY);
+        return mMigoriStore.removeIndex(index, Revision.EMPTY);
       }
 
     } catch (NigoriCryptographyException e) {
@@ -180,7 +180,7 @@ public class NigoriPasswordStore implements IPasswordStore {
   @Override
   public Password retrivePassword(String aId) throws PasswordStoreException {
     try {
-      RevValue current = mMigoriStore.getHead(new Index(aId), new PasswordMerger());
+      RevValue current = mMigoriStore.getMerging(new Index(aId), new PasswordMerger());
       if (current == null) {
         return null;
       }
@@ -199,7 +199,7 @@ public class NigoriPasswordStore implements IPasswordStore {
 			throws PasswordStoreException {
 		try {
 		  Index index = new Index(aPassword.getId());
-      RevValue current = mMigoriStore.getHead(index, new PasswordMerger());
+      RevValue current = mMigoriStore.getMerging(index, new PasswordMerger());
       if (current != null) {
         mMigoriStore.put(index, aPassword.toBytes(), current);
       } else {
