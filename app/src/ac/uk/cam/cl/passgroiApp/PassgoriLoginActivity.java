@@ -148,6 +148,7 @@ public class PassgoriLoginActivity extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		finish();
+		EditText passwordField = (EditText) findViewById(R.id.passgoriPassword);
+		passwordField.setText("");
 	}
 }
