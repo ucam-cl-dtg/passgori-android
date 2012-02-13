@@ -17,6 +17,7 @@
 package uk.ac.cam.cl.passgori;
 
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -24,13 +25,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.everyItem;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -56,12 +58,14 @@ import com.google.nigori.common.UnauthorisedException;
 public class NigoriPasswordStoreTest {
 	IPasswordStore ps;
 
+	private static final boolean LOCAL_TESTING = false;
 	private final String TEST_USERNAME = "testaccount";
 	private final String TEST_PASSWORD = "test";
-	private final String TEST_SERVER = "localhost";
-	private final int TEST_SERVER_PORT = 8888;
+	private final String TEST_SERVER = LOCAL_TESTING ? "localhost" : "nigori-dev.appspot.com";
+	private final int TEST_SERVER_PORT = LOCAL_TESTING ? 8888 : 80;
 	private final String TEST_SERVER_PREFIX = "nigori";
 	private final File je = new File("je-test-dir/");
+	private static final int REPEAT = 50;
 
 	@BeforeClass
 	public static void ensureClean() throws PasswordStoreException {
@@ -86,8 +90,8 @@ public class NigoriPasswordStoreTest {
 	  //TODO(drt24) do the delete properly
 	}
 
-  @AfterClass
-  public static void deleteDatabase() {
+  @After
+  public void deleteDatabase() {
     File dataDir = new File("je-test-dir/");
     if (dataDir.exists()){
       deleteDir(dataDir);
@@ -119,7 +123,28 @@ public class NigoriPasswordStoreTest {
     return dir.delete();
   }
 
-	@Test
+  @Test
+  public void testNigoriConnection() throws IOException, NigoriCryptographyException,
+      UnauthorisedException {
+    MigoriDatastore mMigoriStore = new HashMigoriDatastore(new CryptoNigoriDatastore(TEST_SERVER, TEST_SERVER_PORT,
+        TEST_SERVER_PREFIX, TEST_USERNAME, TEST_PASSWORD));
+
+    Index index = new Index("1");
+    byte[] value = new byte[1];
+    value[0] = 10;
+
+    try {
+      mMigoriStore.register();
+
+      RevValue put = mMigoriStore.put(index, value);
+      assertArrayEquals(value,put.getValue());
+      assertThat(mMigoriStore.get(index),everyItem(equalTo(put)));
+    } finally {
+      mMigoriStore.unregister();
+    }
+  }
+
+  @Test
 	public void testAddKey() throws IOException, NigoriCryptographyException,
 			PasswordStoreException {
 
@@ -204,62 +229,30 @@ public class NigoriPasswordStoreTest {
 
 	}
 
-	@Test
-	public void testNigoriConnection() throws IOException,
-			NigoriCryptographyException, UnauthorisedException {
-		MigoriDatastore mMigoriStore = new HashMigoriDatastore(new CryptoNigoriDatastore(TEST_SERVER, TEST_SERVER_PORT,
-        TEST_SERVER_PREFIX, TEST_USERNAME, TEST_PASSWORD));
+  @Test
+  public void testPasswordList2() throws IOException, NigoriCryptographyException,
+      PasswordStoreException {
 
-		Index index = new Index("1");
-		byte[] value = new byte[1];
-		value[0] = 10;
+    for (int i = 0; i < REPEAT; i++) {
+      Password pass = new Password("a" + i, "bb" + (2 * i), "ccc", "dddd");
+      assertTrue(ps.storePassword(pass));
+      assertEquals(i + 1, ps.getAllStoredPasswordIds().size());
+    }
 
-    try {
-      mMigoriStore.register();
+    List<String> list = ps.getAllStoredPasswordIds();
+    for (int i = 0; i < REPEAT; i++) {
+      assertThat(list, hasItem("a" + i));
+    }
 
-      RevValue put = mMigoriStore.put(index, value);
-      assertArrayEquals(value,put.getValue());
-      assertThat(mMigoriStore.get(index),everyItem(equalTo(put)));
-    } finally {
-      mMigoriStore.unregister();
-		}
-	}
+    Collections.shuffle(list);
 
-	@Test
-	public void testPasswordList2() throws IOException,
-			NigoriCryptographyException, PasswordStoreException {
-
-		for (int i = 0; i < 100; i++) {
-			Password pass = new Password("a" + i, "bb" + (2 * i), "ccc", "dddd");
-			assertTrue(ps.storePassword(pass));
-			assertEquals(ps.getAllStoredPasswordIds().size(), i + 1);
-		}
-
-		List<String> list = ps.getAllStoredPasswordIds();
-		for (int i = 0; i < 100; i++) {
-			assertTrue(list.contains("a" + i));
-		}
-
-		int suffler[] = new int[100];
-		int indexes[] = new int[100];
-		for (int i = 0; i < 100; i++) {
-			suffler[i] = (int) (Math.random() * 100);
-			indexes[i] = i;
-		}
-
-		for (int i = 0; i < 100; i++) {
-			int temp = indexes[suffler[i]];
-			indexes[suffler[i]] = indexes[i];
-			indexes[i] = temp;
-		}
-
-		for (int i = 0; i < 100; i++) {
-			assertTrue(ps.removePassword("a" + indexes[i]));
-			List<String> storedpwds = ps.getAllStoredPasswordIds();
-			assertEquals(storedpwds.size(), (100 - i) - 1);
-			assertFalse(storedpwds.contains("a" + indexes[i]));
-		}
-
-	}
+    int size = REPEAT;
+    for (String id : list) {
+      assertTrue(ps.removePassword(id));
+      List<String> storedpwds = ps.getAllStoredPasswordIds();
+      assertEquals(--size, storedpwds.size());
+      assertThat(storedpwds, not(hasItem(id)));
+    }
+  }
 
 }
