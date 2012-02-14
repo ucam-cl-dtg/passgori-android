@@ -221,4 +221,8 @@ public class Password implements Comparable<Password> {
     return true;
   }
 
+  public long getGeneratedAt() {
+    return mGeneratedAt;
+  }
+
 }
