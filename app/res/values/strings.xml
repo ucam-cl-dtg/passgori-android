@@ -24,4 +24,6 @@
 	<string name="serverPrefixLabel">Server Prefix</string>
 	<string name="passgoriLogin">Passgori Login</string>
 	<string name="unlockLabel">Unlock Password Store</string>
+	<string name="history">History</string>
+	<string name="date">Date: </string>
 </resources>

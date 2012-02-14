@@ -4,13 +4,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <include layout="@layout/password" />
-
-    <ExpandableListView
-        android:id="@+id/historyList"
-        android:layout_width="fill_parent"
+    <TextView
+        android:layout_marginLeft="40dp"
+        android:id="@+id/historyGroupText"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp" >
-    </ExpandableListView>
+        android:text="@string/history"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </LinearLayout>

@@ -19,6 +19,16 @@
  */
 package ac.uk.cam.cl.passgroiApp;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.google.nigori.client.DAG;
+import com.google.nigori.client.Node;
+import com.google.nigori.common.Revision;
+
 import uk.ac.cam.cl.passgori.IPasswordStore;
 import uk.ac.cam.cl.passgori.Password;
 import uk.ac.cam.cl.passgori.PasswordStoreException;
@@ -31,10 +41,14 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -142,6 +156,7 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 			mUsernameField.setVisibility(View.VISIBLE);
 			mPasswordField.setVisibility(View.VISIBLE);
 			mNotesField.setVisibility(View.VISIBLE);
+			mHistoryList.setVisibility(View.VISIBLE);
 
 			mLoadingDialog.dismiss();
 		}
@@ -168,7 +183,9 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 	 */
 	private TextView mNotesField;
 
-	/**
+	private ExpandableListView mHistoryList;
+
+  /**
 	 * Progress Dialog to indicate progress.
 	 */
 	private ProgressDialog mLoadingDialog;
@@ -205,7 +222,7 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 		}
 	};
 
-	@Override
+  @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.password_present);
@@ -215,14 +232,22 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 		mUsernameField = (TextView) findViewById(R.id.usernameField);
 		mPasswordField = (TextView) findViewById(R.id.passwordField);
 		mNotesField = (TextView) findViewById(R.id.notesField);
+		mHistoryList = (ExpandableListView) findViewById(R.id.historyList);
 
 		mLoadingDialog = ProgressDialog.show(this, "",
 				"Loading. Please wait...", true);
 
-		mPasswordTitle.setText(getIntent().getExtras().getString("passwordId"));
+		String id = getIntent().getExtras().getString("passwordId");
+		mPasswordTitle.setText(id);
 		mUsernameField.setVisibility(View.INVISIBLE);
 		mPasswordField.setVisibility(View.INVISIBLE);
 		mNotesField.setVisibility(View.INVISIBLE);
+		mHistoryList.setVisibility(View.INVISIBLE);
+		try {
+      mHistoryList.setAdapter(new HistoryAdapter(this,id));
+    } catch (PasswordStoreException e) {
+      runOnUiThread(new FailureNotification("Error getting history: " + e.toString()));
+    }
 	}
 
 	@Override
@@ -280,4 +305,141 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 		// Once the service is binded, we will load the list
 	}
 
+	private class HistoryAdapter extends BaseExpandableListAdapter {
+	  protected LayoutInflater inflater;
+	  protected List<Revision> revisions;
+    private String id;
+    private boolean initialised = false;
+    protected Map<Integer,Password> cache = new TreeMap<Integer,Password>();
+
+	  public HistoryAdapter(Context con, String id) throws PasswordStoreException{
+	    inflater = LayoutInflater.from(con);
+      revisions = new ArrayList<Revision>();
+      this.id = id;
+    }
+
+	  private void initialise() {
+      if (!initialised && mPasswordStore != null) {
+        try {
+          DAG<Revision> history = mPasswordStore.getHistory(id);
+
+          if (history != null) {
+            for (Node<Revision> revision : history) {
+              revisions.add(revision.getValue());
+            }
+          }
+        } catch (PasswordStoreException e) {
+          runOnUiThread(new FailureNotification("Error while getting history" + e.toString()));
+        }
+        initialised = true;
+      }
+	  }
+    @Override
+    public Password getChild(int groupPosition, int childPosition) {
+      if (groupPosition != 0){
+        return null;
+      }
+      try {
+        initialise();
+        Password password = cache.get(childPosition);
+        if (password == null) {
+          password = mPasswordStore.retrivePassword(id, revisions.get(childPosition));
+          cache.put(childPosition, password);
+        }
+        return password;
+      } catch (PasswordStoreException e) {
+        runOnUiThread(new FailureNotification("Error retrieving old password"));
+        return null;
+      }
+    }
+
+    @Override
+    public long getChildId(int groupPosition, int childPosition) {
+      if (groupPosition != 0){
+        return 0;
+      }
+      return childPosition;
+    }
+
+    @Override
+    public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
+        View convertView, ViewGroup parent) {
+      if (groupPosition != 0){
+        return null;
+      }
+      Password password = getChild(groupPosition,childPosition);
+      if (convertView == null){
+        convertView = inflater.inflate(R.layout.history_child, null);
+      }
+
+      TextView title = (TextView) convertView.findViewById(R.id.passwordTitle);
+      title.setText(password.getId());
+      TextView username = (TextView) convertView.findViewById(R.id.usernameField);
+      username.setText(password.getUsername());
+      TextView passwordField = (TextView) convertView.findViewById(R.id.passwordField);
+      passwordField.setText(password.getPassword());
+      TextView notes = (TextView) convertView.findViewById(R.id.notesField);
+      notes.setText(password.getNotes());
+      TextView date = (TextView) convertView.findViewById(R.id.historyChildDate);
+      date.setText(new Date(password.getGeneratedAt()).toLocaleString());
+
+      return convertView;
+    }
+
+    @Override
+    public int getChildrenCount(int groupPosition) {
+      if (groupPosition != 0){
+        return 0;
+      }
+      initialise();
+      return revisions.size();
+    }
+
+    @Override
+    public List<Revision> getGroup(int groupPosition) {
+      if (groupPosition != 0){
+        return null;
+      }
+      initialise();
+      return revisions;
+    }
+
+    @Override
+    public int getGroupCount() {
+      return 1;
+    }
+
+    @Override
+    public long getGroupId(int groupPosition) {
+      return R.layout.history_group;
+    }
+
+    @Override
+    public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
+        ViewGroup parent) {
+      if (convertView == null){
+        convertView = inflater.inflate(R.layout.history_group, null);
+      }
+      return convertView;
+    }
+
+    @Override
+    public boolean hasStableIds() {
+      return true;
+    }
+
+    @Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
+      if (groupPosition != 0) {
+        return false;
+      }
+      initialise();
+      if (childPosition < revisions.size()) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    
+  }
 }
