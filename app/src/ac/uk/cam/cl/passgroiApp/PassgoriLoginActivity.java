@@ -59,32 +59,39 @@ public class PassgoriLoginActivity extends Activity {
 
 	}
 
+	private boolean connected = false;
+	private PasswordStorageBinder binder;
 	/** Defines callbacks for service binding, passed to bindService() */
 	private final ServiceConnection mConnection = new ServiceConnection() {
 
-		@Override
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			PasswordStorageBinder binder = (PasswordStorageBinder) service;
-			try {
-			  EditText usernameField = (EditText) findViewById(R.id.loginUsernameEditView);
-				EditText passwordField = (EditText) findViewById(R.id.passgoriPassword);
-				binder.createStore(usernameField.getText().toString(),passwordField.getText().toString());
+    @Override
+    public void onServiceConnected(ComponentName className, IBinder service) {
+      binder = (PasswordStorageBinder) service;
 
-				Intent intent = new Intent(PassgoriLoginActivity.this,
-						PassgoriListPasswordsActivity.class);
-				startActivityForResult(intent, 0);
+      displayListPasswordActivity();
 
-			} catch (PasswordStoreException e) {
-				new FailureNotification(e.getMessage()).run();
-			}
+      connected = true;
 
-		}
+    }
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
-
+		  connected = false;
 		}
-	};
+  };
+
+  private void displayListPasswordActivity() {
+    try {
+      EditText usernameField = (EditText) findViewById(R.id.loginUsernameEditView);
+      EditText passwordField = (EditText) findViewById(R.id.passgoriPassword);
+      binder.createStore(usernameField.getText().toString(), passwordField.getText().toString());
+
+      Intent intent = new Intent(PassgoriLoginActivity.this, PassgoriListPasswordsActivity.class);
+      startActivityForResult(intent, 0);
+    } catch (PasswordStoreException e) {
+      new FailureNotification(e.getMessage()).run();
+    }
+  }
 
 	/**
 	 * Progress Dialog to indicate progress.
@@ -104,13 +111,17 @@ public class PassgoriLoginActivity extends Activity {
 	 * Create the service and connect
 	 */
 	private void connectAndLogin() {
-		// Bind to PasswordStoreService
-		Intent intent = new Intent(this, PasswordStoreService.class);
 
-		if (!getApplicationContext().bindService(intent, mConnection,
-				Context.BIND_AUTO_CREATE)) {
-			new FailureNotification("Failed to create internal service").run();
-		}
+    if (!connected) {
+      // Bind to PasswordStoreService
+      Intent intent = new Intent(this, PasswordStoreService.class);
+
+      if (!getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE)) {
+        new FailureNotification("Failed to create internal service").run();
+      }
+    } else {
+      displayListPasswordActivity();
+    }
 	}
 
 	@Override
