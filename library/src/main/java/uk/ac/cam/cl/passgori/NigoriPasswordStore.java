@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.nigori.client.CryptoNigoriDatastore;
+import com.google.nigori.client.DAG;
 import com.google.nigori.client.HashMigoriDatastore;
 import com.google.nigori.client.LocalFirstSyncingNigoriDatastore;
 import com.google.nigori.client.MigoriDatastore;
@@ -195,6 +196,19 @@ public class NigoriPasswordStore implements IPasswordStore {
   }
 
 	@Override
+  public Password retrivePassword(String index, Revision revision) throws PasswordStoreException {
+    try {
+      return new Password(index, mMigoriStore.getRevision(new Index(index), revision));
+    } catch (IOException e) {
+      throw new PasswordStoreException(e);
+    } catch (NigoriCryptographyException e) {
+      throw new PasswordStoreException(e);
+    } catch (UnauthorisedException e) {
+      throw new PasswordStoreException(e);
+    }
+  }
+
+  @Override
 	public boolean storePassword(Password aPassword)
 			throws PasswordStoreException {
 		try {
@@ -233,6 +247,19 @@ public class NigoriPasswordStore implements IPasswordStore {
   public boolean destroyStore() throws PasswordStoreException {
     try {
       return unregister();
+    } catch (NigoriCryptographyException e) {
+      throw new PasswordStoreException(e);
+    } catch (IOException e) {
+      throw new PasswordStoreException(e);
+    } catch (UnauthorisedException e) {
+      throw new PasswordStoreException(e);
+    }
+  }
+
+  @Override
+  public DAG<Revision> getHistory(String passwordId) throws PasswordStoreException {
+    try {
+      return mMigoriStore.getHistory(new Index(passwordId));
     } catch (NigoriCryptographyException e) {
       throw new PasswordStoreException(e);
     } catch (IOException e) {

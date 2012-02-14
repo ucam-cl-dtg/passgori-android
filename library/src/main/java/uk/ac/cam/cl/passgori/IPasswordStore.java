@@ -17,6 +17,9 @@
 package uk.ac.cam.cl.passgori;
 import java.util.List;
 
+import com.google.nigori.client.DAG;
+import com.google.nigori.common.Revision;
+
 /**
  * 
  */
@@ -75,7 +78,9 @@ public interface IPasswordStore {
 	public Password retrivePassword(final String aId)
 			throws PasswordStoreException;
 
-	/**
+  public Password retrivePassword(String index, Revision revision) throws PasswordStoreException;
+
+  /**
 	 * Store a password object to the store.
 	 * 
 	 * @param aPassword
@@ -93,4 +98,6 @@ public interface IPasswordStore {
 	 * @throws PasswordStoreException
 	 */
 	public boolean destroyStore() throws PasswordStoreException;
+
+  public DAG<Revision> getHistory(String passwordId) throws PasswordStoreException;
 }

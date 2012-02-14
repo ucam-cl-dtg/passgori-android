@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import com.google.nigori.client.DAG;
+import com.google.nigori.common.Revision;
+
 /**
  * 
  */
@@ -91,7 +94,12 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 		return mPasswordStore.get(aId);
 	}
 
-	/*
+	@Override
+  public Password retrivePassword(String string, Revision revision) throws PasswordStoreException {
+    return retrivePassword(string);
+  }
+
+  /*
 	 * (non-Javadoc)
 	 * 
 	 * @see IPasswordStore#storePassword(Password)
@@ -109,6 +117,12 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
     mPasswordStore.clear();
     mAuthorized = false;
     return true;
+  }
+
+  @Override
+  public DAG<Revision> getHistory(String mPasswordTitle) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }
