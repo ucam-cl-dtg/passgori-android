@@ -198,7 +198,7 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 	/** Defines callbacks for service binding, passed to bindService() */
 	private final ServiceConnection mConnection = new ServiceConnection() {
 
-		private boolean mBound;
+		//private boolean mBound;
 
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
@@ -206,7 +206,7 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 
 			try {
 				mPasswordStore = binder.getStore();
-				mBound = true;
+				//mBound = true;
 
 				// Spawn thread to get password
 				new GetPassword().start();
@@ -218,7 +218,7 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
-			mBound = false;
+			//mBound = false;
 		}
 	};
 

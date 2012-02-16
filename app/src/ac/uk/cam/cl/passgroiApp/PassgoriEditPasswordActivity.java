@@ -198,14 +198,14 @@ public class PassgoriEditPasswordActivity extends Activity {
 
 	private final ServiceConnection mConnection = new ServiceConnection() {
 
-		private boolean mBound;
+		//private boolean mBound;
 
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			PasswordStorageBinder binder = (PasswordStorageBinder) service;
 			try {
 				mPasswordStore = binder.getStore();
-				mBound = true;
+				//mBound = true;
 
 				// Spawn thread to get password details, if any!
 				new GetPassword().start();
@@ -217,7 +217,7 @@ public class PassgoriEditPasswordActivity extends Activity {
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
-			mBound = false;
+			//mBound = false;
 		}
 	};
 
