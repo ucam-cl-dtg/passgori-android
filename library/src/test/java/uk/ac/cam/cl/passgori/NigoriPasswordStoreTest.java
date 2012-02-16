@@ -86,16 +86,13 @@ public class NigoriPasswordStoreTest {
 	@After
 	public void destroyStore() throws PasswordStoreException {
 	  ps.destroyStore();
-	  je.delete();
-	  //TODO(drt24) do the delete properly
 	}
 
   @After
   public void deleteDatabase() {
-    File dataDir = new File("je-test-dir/");
-    if (dataDir.exists()){
-      deleteDir(dataDir);
-      dataDir.delete();
+    if (je.exists()){
+      deleteDir(je);
+      je.delete();
     }
   }
 
