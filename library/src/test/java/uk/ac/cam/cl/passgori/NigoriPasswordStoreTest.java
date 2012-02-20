@@ -40,8 +40,8 @@ import org.junit.Test;
 import com.google.nigori.client.CryptoNigoriDatastore;
 import com.google.nigori.client.HashMigoriDatastore;
 import com.google.nigori.client.MigoriDatastore;
-import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.common.Index;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.UnauthorisedException;
 
