@@ -18,6 +18,10 @@ package uk.ac.cam.cl.passgori;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +30,15 @@ import com.google.nigori.client.DAG;
 import com.google.nigori.client.HashMigoriDatastore;
 import com.google.nigori.client.LocalFirstSyncingNigoriDatastore;
 import com.google.nigori.client.MigoriDatastore;
+import com.google.nigori.client.NigoriDatastore;
+import com.google.nigori.client.SyncingNigoriDatastore;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
 import com.google.nigori.common.UnauthorisedException;
 import com.google.nigori.server.DatabaseNigoriProtocol;
+import com.google.nigori.server.HashMapDatabase;
 import com.google.nigori.server.JEDatabase;
 
 /**
@@ -53,6 +60,7 @@ public class NigoriPasswordStore implements IPasswordStore {
 	 * The Nigori client instance.
 	 */
 	private MigoriDatastore mMigoriStore;
+	private NigoriDatastore mNigoriStore;
 
 	/**
 	 * The username of the nigori password store
@@ -120,16 +128,17 @@ public class NigoriPasswordStore implements IPasswordStore {
 	    throws PasswordStoreException {
 	  boolean authenticated = false;
 	  try {
-	    //mMigoriStore = new HashMigoriDatastore(new CryptoNigoriDatastore(mServerURI, mPortNumber, mServerPrefix, username, password));
 	    File jeDir = new File(mDir,"je-database/");
 	    if (!jeDir.exists()){
 	      if (!jeDir.mkdir()) {
 	        throw new PasswordStoreException("Could not create dabase folder: " + jeDir);
 	      }
-	    }
-	    mMigoriStore = new HashMigoriDatastore(new LocalFirstSyncingNigoriDatastore(
-	        new CryptoNigoriDatastore(new DatabaseNigoriProtocol(new JEDatabase(jeDir)), username, password, "je"),
-	        new CryptoNigoriDatastore(mServerURI, mPortNumber, mServerPrefix, username, password)));
+      }
+      mNigoriStore =
+          new LocalFirstSyncingNigoriDatastore(new CryptoNigoriDatastore(
+              new DatabaseNigoriProtocol(new JEDatabase(jeDir)), username, password, "je"),
+              new CryptoNigoriDatastore(mServerURI, mPortNumber, mServerPrefix, username, password));
+      mMigoriStore = new HashMigoriDatastore(mNigoriStore);
 
 	    authenticated = mMigoriStore.authenticate();
 	    if (!authenticated)
@@ -267,6 +276,38 @@ public class NigoriPasswordStore implements IPasswordStore {
     } catch (UnauthorisedException e) {
       throw new PasswordStoreException(e);
     }
+  }
+
+  @Override
+  public void backup(OutputStream output, String password) throws IOException,
+      NigoriCryptographyException, UnauthorisedException {
+    HashMapDatabase database = new HashMapDatabase();
+    NigoriDatastore backupStore =
+        new CryptoNigoriDatastore(new DatabaseNigoriProtocol(database), mUserName, password,
+            "backup");
+    if (!backupStore.register()) {
+      throw new UnauthorisedException("Could not register with backup server");
+    }
+    SyncingNigoriDatastore syncing = new SyncingNigoriDatastore(mNigoriStore, backupStore);
+    syncing.syncAll();
+    ObjectOutputStream oos = new ObjectOutputStream(output);
+    oos.writeObject(database);
+    oos.flush();
+    oos.close();
+  }
+
+  @Override
+  public void restore(InputStream input, String password) throws IOException,
+      NigoriCryptographyException, ClassNotFoundException, UnauthorisedException {
+    ObjectInputStream ois = new ObjectInputStream(input);
+
+    HashMapDatabase database = (HashMapDatabase) ois.readObject();
+    ois.close();
+
+    SyncingNigoriDatastore syncing =
+        new SyncingNigoriDatastore(mNigoriStore, new CryptoNigoriDatastore(
+            new DatabaseNigoriProtocol(database), mUserName, password, "backup"));
+    syncing.syncAll();
   }
 
 }

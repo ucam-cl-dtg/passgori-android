@@ -15,10 +15,16 @@
  */
  
 package uk.ac.cam.cl.passgori;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import com.google.nigori.client.DAG;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * 
@@ -100,4 +106,26 @@ public interface IPasswordStore {
 	public boolean destroyStore() throws PasswordStoreException;
 
   public DAG<Revision> getHistory(String passwordId) throws PasswordStoreException;
+
+  /**
+   * Backup the encrypted store to the specified output stream
+   * 
+   * @param output the output to save the backup to
+   * @throws NigoriCryptographyException 
+   * @throws IOException 
+   * @throws UnsupportedEncodingException 
+   * @throws UnauthorisedException 
+   */
+  public void backup(OutputStream output, String password) throws IOException, NigoriCryptographyException, UnauthorisedException;
+
+  /**
+   * Restore the encrypted store from the specified input stream
+   * 
+   * @param input the input stream to read the backup from
+   * @throws NigoriCryptographyException 
+   * @throws IOException 
+   * @throws ClassNotFoundException 
+   * @throws UnauthorisedException 
+   */
+  public void restore(InputStream input, String password) throws IOException, NigoriCryptographyException, ClassNotFoundException, UnauthorisedException;
 }

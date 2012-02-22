@@ -16,6 +16,11 @@
  
 package uk.ac.cam.cl.passgori;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +28,7 @@ import java.util.Set;
 
 import com.google.nigori.client.DAG;
 import com.google.nigori.common.Revision;
+import com.google.nigori.server.HashMapDatabase;
 
 /**
  * 
@@ -123,6 +129,27 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
   public DAG<Revision> getHistory(String mPasswordTitle) {
     // TODO(drt24) implement getHistory
     return null;
+  }
+
+  @Override
+  public void backup(OutputStream output, String password) throws IOException {
+    ObjectOutputStream oos = new ObjectOutputStream(output);
+    oos.writeObject(mPasswordStore);
+    oos.flush();
+    oos.close();
+  }
+
+  @Override
+  public void restore(InputStream input, String password) throws IOException,
+      ClassNotFoundException {
+    ObjectInputStream ois = new ObjectInputStream(input);
+
+    try {
+      mPasswordStore.putAll((HashMap<String, Password>) ois.readObject());
+    } catch (ClassCastException e) {
+      throw new ClassNotFoundException(e.toString());
+    }
+    ois.close();
   }
 
 }

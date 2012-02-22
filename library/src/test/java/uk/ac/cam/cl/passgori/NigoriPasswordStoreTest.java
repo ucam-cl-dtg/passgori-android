@@ -28,6 +28,9 @@ import static org.junit.matchers.JUnitMatchers.everyItem;
 import static org.junit.matchers.JUnitMatchers.hasItem;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -252,4 +255,25 @@ public class NigoriPasswordStoreTest {
     }
   }
 
+  @Test
+  public void backupAndRestore() throws FileNotFoundException, IOException,
+      NigoriCryptographyException, UnauthorisedException, PasswordStoreException,
+      ClassNotFoundException {
+    Password tps = new Password(TEST_PASSWORD, TEST_PASSWORD, TEST_PASSWORD, TEST_PASSWORD);
+    ps.storePassword(tps);
+    Password tss = new Password(TEST_SERVER, TEST_SERVER, TEST_SERVER, TEST_SERVER);
+    ps.storePassword(tss);
+
+    File backupFile = new File("test-backup.bak");
+    backupFile.deleteOnExit();
+    ps.backup(new FileOutputStream(backupFile), TEST_PASSWORD);
+    ps.destroyStore();
+    ps.authorize(TEST_USERNAME, TEST_PASSWORD);
+    ps.restore(new FileInputStream(backupFile), TEST_PASSWORD);
+
+    Password tpr = ps.retrivePassword(TEST_PASSWORD);
+    assertEquals(tps, tpr);
+    Password tsr = ps.retrivePassword(TEST_SERVER);
+    assertEquals(tss, tsr);
+  }
 }
