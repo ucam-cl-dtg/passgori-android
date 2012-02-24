@@ -17,7 +17,7 @@
 /**
  * 
  */
-package ac.uk.cam.cl.passgroiApp;
+package uk.ac.cam.cl.passgori.app;
 
 import uk.ac.cam.cl.passgori.IPasswordStore;
 import uk.ac.cam.cl.passgori.NigoriPasswordStore;

@@ -17,7 +17,7 @@
 /**
  * 
  */
-package ac.uk.cam.cl.passgroiApp;
+package uk.ac.cam.cl.passgori.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;

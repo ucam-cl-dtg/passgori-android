@@ -17,7 +17,7 @@
 /**
  * 
  */
-package ac.uk.cam.cl.passgroiApp;
+package uk.ac.cam.cl.passgori.app;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,14 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.nigori.client.DAG;
-import com.google.nigori.client.Node;
-import com.google.nigori.common.Revision;
-
 import uk.ac.cam.cl.passgori.IPasswordStore;
 import uk.ac.cam.cl.passgori.Password;
 import uk.ac.cam.cl.passgori.PasswordStoreException;
-import ac.uk.cam.cl.passgroiApp.PasswordStoreService.PasswordStorageBinder;
+import uk.ac.cam.cl.passgori.app.PasswordStoreService.PasswordStorageBinder;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -51,6 +47,10 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.nigori.client.DAG;
+import com.google.nigori.client.Node;
+import com.google.nigori.common.Revision;
 
 /**
  * An activity presenting the a password entity.

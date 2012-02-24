@@ -17,10 +17,10 @@
 /**
  * 
  */
-package ac.uk.cam.cl.passgroiApp;
+package uk.ac.cam.cl.passgori.app;
 
 import uk.ac.cam.cl.passgori.PasswordStoreException;
-import ac.uk.cam.cl.passgroiApp.PasswordStoreService.PasswordStorageBinder;
+import uk.ac.cam.cl.passgori.app.PasswordStoreService.PasswordStorageBinder;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;

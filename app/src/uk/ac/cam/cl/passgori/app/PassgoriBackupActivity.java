@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ac.uk.cam.cl.passgroiApp;
+package uk.ac.cam.cl.passgori.app;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,7 +25,7 @@ import java.util.Date;
 
 import uk.ac.cam.cl.passgori.IPasswordStore;
 import uk.ac.cam.cl.passgori.PasswordStoreException;
-import ac.uk.cam.cl.passgroiApp.PasswordStoreService.PasswordStorageBinder;
+import uk.ac.cam.cl.passgori.app.PasswordStoreService.PasswordStorageBinder;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -100,7 +100,7 @@ public class PassgoriBackupActivity extends Activity {
     try {
       if (Environment.MEDIA_MOUNTED.equals(state)) {
         File backupsDir =
-            new File(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/ac.uk.cam.cl.passgroiApp/files/"), "backups");
+            new File(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/uk.ac.cam.cl.passgori.app/files/"), "backups");
         if (!backupsDir.exists()) {
           backupsDir.mkdirs();
         }

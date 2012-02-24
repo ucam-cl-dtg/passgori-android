@@ -14,13 +14,13 @@
  * limitations under the License.
  */
  
-package ac.uk.cam.cl.passgroiApp;
+package uk.ac.cam.cl.passgori.app;
 
 import java.util.List;
 
 import uk.ac.cam.cl.passgori.IPasswordStore;
 import uk.ac.cam.cl.passgori.PasswordStoreException;
-import ac.uk.cam.cl.passgroiApp.PasswordStoreService.PasswordStorageBinder;
+import uk.ac.cam.cl.passgori.app.PasswordStoreService.PasswordStorageBinder;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
