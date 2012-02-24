@@ -51,10 +51,10 @@ public class PassgoriConfigurations {
 
 	/**
 	 * 
-	 * @return the stored port (default 80)
+	 * @return the stored port (default 443)
 	 */
 	public final int getPort() {
-		return mSettings.getInt("passgoriPort", 80);
+		return mSettings.getInt("passgoriPort", 443);
 	}
 
 	/**
