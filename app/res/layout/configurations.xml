@@ -19,12 +19,13 @@
     <EditText
         android:id="@+id/passgoriUsername"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:inputType="text" >
 
         <requestFocus />
     </EditText>
-    
-        <TextView
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/serverLabel"
@@ -33,12 +34,11 @@
     <EditText
         android:id="@+id/passgoriServer"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
-
-        <requestFocus />
+        android:layout_height="wrap_content"
+        android:inputType="text" >
     </EditText>
-    
-        <TextView
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/portLabel"
@@ -49,11 +49,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:inputType="number" >
-
-        <requestFocus />
     </EditText>
 
-         <TextView
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/serverPrefixLabel"
@@ -62,27 +60,28 @@
     <EditText
         android:id="@+id/passgoriServerPrefix"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
-
-        <requestFocus />
+        android:layout_height="wrap_content"
+        android:inputType="text" >
     </EditText>
-    
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center" >
-   			<Button 
-				    android:id="@+id/saveButton"
-				    android:layout_width="150dip"
-			        android:layout_height="wrap_content"
-			        android:text="@string/saveButtonLabel"/>
-		        
-		        <Button 
-				    android:id="@+id/cancelButton"
-				    android:layout_width="150dip"
-			        android:layout_height="wrap_content"
-			        android:text="@string/cancelButtonLabel"/>
-   </LinearLayout>
-        
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="150dip"
+            android:layout_height="wrap_content"
+            android:text="@string/saveButtonLabel" />
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="150dip"
+            android:layout_height="wrap_content"
+            android:text="@string/cancelButtonLabel" />
+    </LinearLayout>
+
 </LinearLayout>
