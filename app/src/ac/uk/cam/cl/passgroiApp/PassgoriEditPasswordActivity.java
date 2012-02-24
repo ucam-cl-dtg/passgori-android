@@ -65,7 +65,7 @@ public class PassgoriEditPasswordActivity extends Activity {
 			if (mLoadingDialog != null)
 				mLoadingDialog.dismiss();
 
-			Toast.makeText(getApplicationContext(), mMessage, Toast.LENGTH_LONG);
+			Toast.makeText(getApplicationContext(), mMessage, Toast.LENGTH_LONG).show();
 		}
 
 	}

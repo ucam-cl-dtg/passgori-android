@@ -216,28 +216,33 @@ public class PassgoriListPasswordsActivity extends Activity {
 		return true;
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle item selection
-		switch (item.getItemId()) {
-		case R.id.passwordListRefresh:
-			refreshPasswordList();
-			return true;
-		case R.id.passgoriConfigure:
-			Intent configIntent = new Intent(this,
-					PassgoriConfigurationsEditor.class);
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    // Handle item selection
+    switch (item.getItemId()) {
+      case R.id.passwordListRefresh:
+        refreshPasswordList();
+        return true;
 
-			startActivityForResult(configIntent, 0);
-			return true;
-		case R.id.passwordListAdd:
-			Intent intent = new Intent(this, PassgoriEditPasswordActivity.class);
+      case R.id.passgoriConfigure:
+        Intent configIntent = new Intent(this, PassgoriConfigurationsEditor.class);
+        startActivityForResult(configIntent, 0);
+        return true;
 
-			startActivityForResult(intent, 0);
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	}
+      case R.id.passwordListAdd:
+        Intent intent = new Intent(this, PassgoriEditPasswordActivity.class);
+        startActivityForResult(intent, 0);
+        return true;
+
+      case R.id.passgoriBackup:
+        Intent backupIntent = new Intent(this, PassgoriBackupActivity.class);
+        startActivityForResult(backupIntent, 0);
+        return true;
+
+      default:
+        return super.onOptionsItemSelected(item);
+    }
+  }
 
 	/**
 	 * Refresh the password list
