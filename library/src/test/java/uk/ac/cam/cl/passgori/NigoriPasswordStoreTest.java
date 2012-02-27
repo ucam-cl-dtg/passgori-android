@@ -63,7 +63,7 @@ public class NigoriPasswordStoreTest {
 
 	private static final boolean LOCAL_TESTING = false;
 	private final String TEST_USERNAME = "testaccount";
-	private final String TEST_PASSWORD = "test";
+	private final String TEST_PASSWORD = "test-password";
 	private final String TEST_SERVER = LOCAL_TESTING ? "localhost" : "nigori-dev.appspot.com";
 	private final int TEST_SERVER_PORT = LOCAL_TESTING ? 8888 : 443;
 	private final String TEST_SERVER_PREFIX = "nigori";

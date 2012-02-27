@@ -56,7 +56,9 @@ import com.google.nigori.server.JEDatabase;
  */
 public class NigoriPasswordStore implements IPasswordStore {
 
-	/**
+	private static final int MIN_PASSWORD_LENGTH = 8;
+	private static final String SHORT_PASSWORD = "Password too short, must be at least " + MIN_PASSWORD_LENGTH;
+  /**
 	 * The Nigori client instance.
 	 */
 	private MigoriDatastore mMigoriStore;
@@ -113,6 +115,9 @@ public class NigoriPasswordStore implements IPasswordStore {
 	public NigoriPasswordStore(File dir, final String username, final String password,
 			final String serverURI, final int portNumber,
 			final String serverPrefix) throws PasswordStoreException {
+	  if (password.length() < MIN_PASSWORD_LENGTH){
+      throw new PasswordStoreException(SHORT_PASSWORD);
+    }
 	  mDir = dir;
 		mPortNumber = portNumber;
 		mServerPrefix = serverPrefix;
@@ -126,6 +131,9 @@ public class NigoriPasswordStore implements IPasswordStore {
 	@Override
 	public boolean authorize(String username, String password)
 	    throws PasswordStoreException {
+	  if (password.length() < MIN_PASSWORD_LENGTH){
+      throw new PasswordStoreException(SHORT_PASSWORD);
+    }
 	  boolean authenticated = false;
 	  try {
 	    File jeDir = new File(mDir,"je-database/");
@@ -281,6 +289,10 @@ public class NigoriPasswordStore implements IPasswordStore {
   @Override
   public void backup(OutputStream output, String password) throws IOException,
       NigoriCryptographyException, UnauthorisedException {
+    if (password.length() < MIN_PASSWORD_LENGTH){
+      throw new UnauthorisedException(SHORT_PASSWORD);
+    }
+
     HashMapDatabase database = new HashMapDatabase();
     NigoriDatastore backupStore =
         new CryptoNigoriDatastore(new DatabaseNigoriProtocol(database), mUserName, password,
@@ -299,6 +311,10 @@ public class NigoriPasswordStore implements IPasswordStore {
   @Override
   public void restore(InputStream input, String password) throws IOException,
       NigoriCryptographyException, ClassNotFoundException, UnauthorisedException {
+    if (password.length() < MIN_PASSWORD_LENGTH){
+      throw new UnauthorisedException(SHORT_PASSWORD);
+    }
+
     ObjectInputStream ois = new ObjectInputStream(input);
 
     HashMapDatabase database = (HashMapDatabase) ois.readObject();

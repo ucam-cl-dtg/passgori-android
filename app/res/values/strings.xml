@@ -31,7 +31,9 @@
     <string name="history">History</string>
     <string name="date">Date: </string>
     <string name="backup">Backup</string>
+    <string name="backupRestore">Backup / Restore</string>
     <string name="backupTo">Backup destination </string>
     <string name="connectingPasswordStore">Connecting to password store</string>
+    <string name="restore">Restore</string>
 
 </resources>
