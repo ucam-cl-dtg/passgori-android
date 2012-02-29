@@ -25,16 +25,11 @@ import java.util.Date;
 
 import uk.ac.cam.cl.passgori.IPasswordStore;
 import uk.ac.cam.cl.passgori.PasswordStoreException;
-import uk.ac.cam.cl.passgori.app.PasswordStoreService.PasswordStorageBinder;
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -49,46 +44,18 @@ import android.widget.Toast;
 import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.UnauthorisedException;
 
-public class PassgoriBackupActivity extends Activity {
+public class PassgoriBackupActivity extends AbstractLoadingActivity {
 
-  private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+  private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
   private static final String LOG_TAG = PassgoriBackupActivity.class.getSimpleName();
 
   private Button mBackupButton;
-  public ProgressDialog mLoadingDialog;
 
   /**
    * The password store.
    */
   private IPasswordStore mPasswordStore;
 
-  /**
-   * Boolean indicating if activity is bound on service.
-   */
-  boolean mBound = false;
-
-  /** Defines callbacks for service binding, passed to bindService() */
-  private final ServiceConnection mConnection = new ServiceConnection() {
-
-    @Override
-    public void onServiceConnected(ComponentName className, IBinder service) {
-      PasswordStorageBinder binder = (PasswordStorageBinder) service;
-      try {
-        mPasswordStore = binder.getStore();
-        mLoadingDialog.dismiss();
-        mBound = true;
-
-      } catch (PasswordStoreException e) {
-        runOnUiThread(new FailureNotification(e.getMessage()));
-      }
-
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName arg0) {
-      mBound = false;
-    }
-  };
   private EditText mPasswordField;
 
   private TextView mBackupDestinationField;
@@ -130,8 +97,7 @@ public class PassgoriBackupActivity extends Activity {
             "External storage not writable so cannot backup to it"));
       }
     } catch (IOException e1) {
-      Log.e(LOG_TAG, e1.toString());
-      runOnUiThread(new FailureNotification(e1.getLocalizedMessage()));
+      runOnUiThread(new FailureNotification(e1));
     }
   }
 
@@ -161,20 +127,13 @@ public class PassgoriBackupActivity extends Activity {
       Toast.makeText(getApplicationContext(), "Restore complete", Toast.LENGTH_LONG).show();
 
       finish();// Close the backup activity
-    } catch (FileNotFoundException e) {
-      Log.e(LOG_TAG, e.toString());
-      runOnUiThread(new FailureNotification("Restore failed: " + e.toString()));
     } catch (IOException e) {
-      Log.e(LOG_TAG, e.toString());
       runOnUiThread(new FailureNotification("Restore failed: " + e.toString()));
     } catch (NigoriCryptographyException e) {
-      Log.e(LOG_TAG, e.toString());
       runOnUiThread(new FailureNotification("Restore failed: " + e.toString()));
     } catch (UnauthorisedException e) {
-      Log.e(LOG_TAG, e.toString());
       runOnUiThread(new FailureNotification("Restore failed: " + e.toString()));
     } catch (ClassNotFoundException e) {
-      Log.e(LOG_TAG, e.toString());
       runOnUiThread(new FailureNotification("Restore failed: " + e.toString()));
     }
   }
@@ -203,17 +162,13 @@ public class PassgoriBackupActivity extends Activity {
           finish();// Close the backup activity
 
         } catch (FileNotFoundException e) {
-          Log.e(LOG_TAG, e.toString());
-          runOnUiThread(new FailureNotification(e.getLocalizedMessage()));
+          runOnUiThread(new FailureNotification(e));
         } catch (IOException e) {
-          Log.e(LOG_TAG, e.toString());
-          runOnUiThread(new FailureNotification(e.getLocalizedMessage()));
+          runOnUiThread(new FailureNotification(e));
         } catch (NigoriCryptographyException e) {
-          Log.e(LOG_TAG, e.toString());
-          runOnUiThread(new FailureNotification(e.getLocalizedMessage()));
+          runOnUiThread(new FailureNotification(e));
         } catch (UnauthorisedException e) {
-          Log.e(LOG_TAG, e.toString());
-          runOnUiThread(new FailureNotification(e.getLocalizedMessage()));
+          runOnUiThread(new FailureNotification(e));
         }
       }
     });
@@ -226,32 +181,24 @@ public class PassgoriBackupActivity extends Activity {
     // Bind to PasswordStoreService
     Intent intent = new Intent(this, PasswordStoreService.class);
 
-    if (!getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE)) {
-      String error = getString(R.string.serviceBindError);
-      Log.e(LOG_TAG, error);
-      new FailureNotification(error).run();
-    }
-    if (!mBound) {
+    if (!connected) {
       mLoadingDialog =
           ProgressDialog.show(PassgoriBackupActivity.this, "", "Connecting. Please wait...", true);
     }
+    if (!getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE)) {
+      String error = getString(R.string.serviceBindError);
+      new FailureNotification(error).run();
+    }
   }
 
-  private class FailureNotification implements Runnable {
-
-    private final String mMessage;
-
-    public FailureNotification(String message) {
-      mMessage = message;
-    }
-
-    @Override
-    public void run() {
-      if (mLoadingDialog != null)
-        mLoadingDialog.dismiss();
-
-      Toast.makeText(getApplicationContext(), mMessage, Toast.LENGTH_LONG).show();
-    }
-
+  @Override
+  protected void displayError(String errorMessage) {
+    Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
   }
+
+  @Override
+  protected void onConnected() throws PasswordStoreException {
+    mPasswordStore = binder.getStore();
+  }
+
 }

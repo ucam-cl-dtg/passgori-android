@@ -20,15 +20,11 @@
 package uk.ac.cam.cl.passgori.app;
 
 import uk.ac.cam.cl.passgori.PasswordStoreException;
-import uk.ac.cam.cl.passgori.app.PasswordStoreService.PasswordStorageBinder;
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,45 +36,7 @@ import android.widget.TextView;
  * @author Miltiadis Allamanis
  * 
  */
-public class PassgoriLoginActivity extends Activity {
-	private class FailureNotification implements Runnable {
-
-		private final String mMessage;
-
-		public FailureNotification(String message) {
-			mMessage = message;
-		}
-
-		@Override
-		public void run() {
-			if (mLoadingDialog != null)
-				mLoadingDialog.dismiss();
-			TextView errorTextView = (TextView) findViewById(R.id.loginerror);
-			errorTextView.setText(mMessage);
-		}
-
-	}
-
-	private boolean connected = false;
-	private PasswordStorageBinder binder;
-	/** Defines callbacks for service binding, passed to bindService() */
-	private final ServiceConnection mConnection = new ServiceConnection() {
-
-    @Override
-    public void onServiceConnected(ComponentName className, IBinder service) {
-      binder = (PasswordStorageBinder) service;
-
-      displayListPasswordActivity();
-
-      connected = true;
-
-    }
-
-		@Override
-		public void onServiceDisconnected(ComponentName arg0) {
-		  connected = false;
-		}
-  };
+public class PassgoriLoginActivity extends AbstractLoadingActivity {
 
   private void displayListPasswordActivity() {
     try {
@@ -92,11 +50,6 @@ public class PassgoriLoginActivity extends Activity {
       new FailureNotification(e.getMessage()).run();
     }
   }
-
-	/**
-	 * Progress Dialog to indicate progress.
-	 */
-	private ProgressDialog mLoadingDialog;
 
 	private Button mLoginButton;
 	private Button mConfigureButton;
@@ -113,12 +66,21 @@ public class PassgoriLoginActivity extends Activity {
 	private void connectAndLogin() {
 
     if (!connected) {
-      // Bind to PasswordStoreService
-      Intent intent = new Intent(this, PasswordStoreService.class);
+      mLoadingDialog = ProgressDialog.show(this, "", "Connecting. Please wait...", true);
+      new AsyncTask<Object, Object, Object>() {// don't want to do this on the UI thread
 
-      if (!getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE)) {
-        new FailureNotification("Failed to create internal service").run();
-      }
+        @Override
+        protected Object doInBackground(Object... arg0) {
+          // Bind to PasswordStoreService
+          Intent intent = new Intent(PassgoriLoginActivity.this, PasswordStoreService.class);
+
+          if (!getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE)) {
+            runOnUiThread(new FailureNotification("Failed to create internal service"));
+          }
+          return null;
+        }
+      }.execute();
+
     } else {
       displayListPasswordActivity();
     }
@@ -162,4 +124,15 @@ public class PassgoriLoginActivity extends Activity {
 		EditText passwordField = (EditText) findViewById(R.id.passgoriPassword);
 		passwordField.setText("");
 	}
+
+  @Override
+  protected void displayError(String errorMessage) {
+    TextView errorTextView = (TextView) findViewById(R.id.loginerror);
+    errorTextView.setText(errorMessage);
+  }
+
+  @Override
+  protected void onConnected() {
+    displayListPasswordActivity();    
+  }
 }

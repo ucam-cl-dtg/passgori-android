@@ -28,15 +28,10 @@ import java.util.TreeMap;
 import uk.ac.cam.cl.passgori.IPasswordStore;
 import uk.ac.cam.cl.passgori.Password;
 import uk.ac.cam.cl.passgori.PasswordStoreException;
-import uk.ac.cam.cl.passgori.app.PasswordStoreService.PasswordStorageBinder;
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -58,7 +53,7 @@ import com.google.nigori.common.Revision;
  * @author Miltiadis Allamanis
  * 
  */
-public class PassgoriPresentPasswordsActivity extends Activity {
+public class PassgoriPresentPasswordsActivity extends AbstractLoadingActivity {
 
 	public class DeletePasswordThread extends Thread {
 
@@ -80,7 +75,7 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 							"Password unaccessbile"));
 				}
 			} catch (PasswordStoreException e) {
-				runOnUiThread(new FailureNotification(e.getMessage()));
+				runOnUiThread(new FailureNotification(e));
 
 			}
 		}
@@ -95,23 +90,6 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 			finish();
 			Toast.makeText(getApplicationContext(), "Password Deleted",
 					Toast.LENGTH_LONG);
-		}
-
-	}
-
-	private class FailureNotification implements Runnable {
-
-		private final String mMessage;
-
-		public FailureNotification(String message) {
-			mMessage = message;
-		}
-
-		@Override
-		public void run() {
-			if (mLoadingDialog != null)
-				mLoadingDialog.dismiss();
-			Toast.makeText(getApplicationContext(), mMessage, Toast.LENGTH_LONG);
 		}
 
 	}
@@ -133,7 +111,7 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 							"Password Unaccessible"));
 				}
 			} catch (PasswordStoreException e) {
-				runOnUiThread(new FailureNotification(e.getMessage()));
+				runOnUiThread(new FailureNotification(e));
 
 			}
 		}
@@ -185,42 +163,10 @@ public class PassgoriPresentPasswordsActivity extends Activity {
 
 	private ExpandableListView mHistoryList;
 
-  /**
-	 * Progress Dialog to indicate progress.
-	 */
-	private ProgressDialog mLoadingDialog;
-
 	/**
 	 * The password store.
 	 */
 	private IPasswordStore mPasswordStore;
-
-	/** Defines callbacks for service binding, passed to bindService() */
-	private final ServiceConnection mConnection = new ServiceConnection() {
-
-		//private boolean mBound;
-
-		@Override
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			PasswordStorageBinder binder = (PasswordStorageBinder) service;
-
-			try {
-				mPasswordStore = binder.getStore();
-				//mBound = true;
-
-				// Spawn thread to get password
-				new GetPassword().start();
-			} catch (PasswordStoreException e) {
-				new FailureNotification(e.getMessage()).run();
-			}
-
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName arg0) {
-			//mBound = false;
-		}
-	};
 
   @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -441,5 +387,16 @@ public class PassgoriPresentPasswordsActivity extends Activity {
       }
     }
     
+  }
+
+  @Override
+  protected void displayError(String errorMessage) {
+    Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+  }
+
+  @Override
+  protected void onConnected() throws PasswordStoreException {
+    mPasswordStore = binder.getStore();
+    new GetPassword().start();    
   }
 }
