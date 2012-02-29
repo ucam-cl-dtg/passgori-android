@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -69,6 +70,7 @@ public class PassgoriListPasswordsActivity extends Activity {
 
 		@Override
 		public void run() {
+		  Log.e(PassgoriListPasswordsActivity.class.getSimpleName(), mFailureMessage);
 			mWaitingLinearLayout.removeAllViews();
 			mWaitingText.setText(mFailureMessage);
 			mWaitingLinearLayout.addView(mWaitingText);
@@ -292,5 +294,16 @@ public class PassgoriListPasswordsActivity extends Activity {
 
 		// Once the service is binded, we will load the list
 	}
+
+	/**
+	 * When we come back from doing a backup/restore then we need to reflect any changes that there were.
+	 */
+  @Override
+  public void finishFromChild(Activity child) {
+    if (child instanceof PassgoriBackupActivity) {
+      refreshPasswordList();
+    }
+    super.finishFromChild(child);
+  }
 
 }
