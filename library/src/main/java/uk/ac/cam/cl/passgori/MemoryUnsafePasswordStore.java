@@ -28,7 +28,6 @@ import java.util.Set;
 
 import com.google.nigori.client.DAG;
 import com.google.nigori.common.Revision;
-import com.google.nigori.server.HashMapDatabase;
 
 /**
  * 
@@ -139,6 +138,7 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
     oos.close();
   }
 
+  @SuppressWarnings("unchecked")// exception caught
   @Override
   public void restore(InputStream input, String password) throws IOException,
       ClassNotFoundException {
