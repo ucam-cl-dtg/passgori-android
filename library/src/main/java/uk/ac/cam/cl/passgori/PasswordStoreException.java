@@ -35,4 +35,8 @@ public class PasswordStoreException extends Exception {
 	public PasswordStoreException(String msg) {
 		super(msg);
 	}
+
+  public PasswordStoreException(String string, Exception e) {
+    super(string,e);
+  }
 }
