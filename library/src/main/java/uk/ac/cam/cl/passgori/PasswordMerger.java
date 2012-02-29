@@ -22,10 +22,16 @@ public class PasswordMerger implements MigoriMerger {
   @Override
   public RevValue merge(MigoriDatastore store, Index index, Collection<RevValue> heads)
       throws IOException, NigoriCryptographyException, UnauthorisedException {
+    assert heads.size() > 0;// caller must ensure that this is true
     List<Password> passwords = new ArrayList<Password>();
     Map<Password, RevValue> mapBack = new HashMap<Password, RevValue>();
     for (RevValue value : heads) {
-      Password password = new Password(index.toString(), value.getValue());
+      Password password;
+      try {
+        password = new Password(index.toString(), value.getValue());
+      } catch (PasswordStoreException e) {
+        throw new IOException(e);
+      }
       passwords.add(password);
       mapBack.put(password, value);
     }
