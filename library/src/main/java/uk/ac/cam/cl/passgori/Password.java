@@ -18,6 +18,7 @@ package uk.ac.cam.cl.passgori;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.List;
 
 import com.google.nigori.common.MessageLibrary;
 /**
@@ -78,23 +79,16 @@ public class Password implements Comparable<Password> {
 	}
 
 	public Password(String id, byte[] bytes) {
-    int offset = 0;
-    byte[] username = Arrays.copyOfRange(bytes, Util.INT, Util.INT + Util.bin2int(bytes, offset));
-    offset += Util.INT + username.length;
-    byte[] password = Arrays.copyOfRange(bytes, offset + Util.INT, offset + Util.INT + Util.bin2int(bytes, offset));
-    offset += Util.INT + password.length;
-    byte[] notes = Arrays.copyOfRange(bytes, offset + Util.INT, offset + Util.INT + Util.bin2int(bytes, offset));
-    offset += Util.INT + notes.length;
-
+	  List<byte[]> bytess = Util.splitBytes(bytes);
     mId = id;
     try {
-      mUsername = new String(username, CHARSET);
-      mPassword = new String(password, CHARSET);
-      mNotes = new String(notes, CHARSET);
+      mUsername = new String(bytess.get(0), CHARSET);
+      mPassword = new String(bytess.get(1), CHARSET);
+      mNotes = new String(bytess.get(2), CHARSET);
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
-    mGeneratedAt = Util.bin2long(bytes, offset);
+    mGeneratedAt = Util.bin2long(bytess.get(3));
   }
 
   public final String getId() {
@@ -114,36 +108,8 @@ public class Password implements Comparable<Password> {
 	}
 
   public byte[] toBytes() {
-    try {
-      byte[] username = mUsername.getBytes(CHARSET);
-      byte[] password = mPassword.getBytes(CHARSET);
-      byte[] notes = mNotes.getBytes(CHARSET);
-
-      byte[] answer =
-          new byte[3 * Util.INT + username.length + password.length + notes.length + Util.LONG];
-      int insert = 0;
-
-      System.arraycopy(Util.int2bin(username.length), 0, answer, insert, Util.INT);
-      insert += Util.INT;
-      System.arraycopy(username, 0, answer, insert, username.length);
-      insert += username.length;
-
-      System.arraycopy(Util.int2bin(password.length), 0, answer, insert, Util.INT);
-      insert += Util.INT;
-      System.arraycopy(password, 0, answer, insert, password.length);
-      insert += password.length;
-
-      System.arraycopy(Util.int2bin(notes.length), 0, answer, insert, Util.INT);
-      insert += Util.INT;
-      System.arraycopy(notes, 0, answer, insert, notes.length);
-      insert += notes.length;
-
-      System.arraycopy(Util.long2bin(mGeneratedAt), 0, answer, insert, Util.LONG);
-
-      return answer;
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+    return Util.joinBytes(MessageLibrary.toBytes(mUsername), MessageLibrary.toBytes(mPassword),
+        MessageLibrary.toBytes(mNotes), Util.long2bin(mGeneratedAt));
   }
 
   @Override
