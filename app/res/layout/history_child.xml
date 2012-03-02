@@ -14,14 +14,15 @@
             android:layout_height="wrap_content"
             android:text="@string/date"
             android:textAppearance="?android:attr/textAppearanceLarge" />
+
         <TextView
-            android:layout_marginLeft="3dp"
             android:id="@+id/historyChildDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
     </LinearLayout>
+
     <include layout="@layout/password" />
 
 </LinearLayout>
