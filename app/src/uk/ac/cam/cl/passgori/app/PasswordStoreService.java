@@ -41,12 +41,12 @@ public class PasswordStoreService extends Service {
 	 * Class used for the client Binder.
 	 */
 	public class PasswordStorageBinder extends Binder {
-		public void createStore(String username, String password) throws PasswordStoreException {
+		public void createStore(String password) throws PasswordStoreException {
 			try {
 			  Context context = getBaseContext();
 				PassgoriConfigurations pc = new PassgoriConfigurations(
 				    context);
-				mPasswordStore = new NigoriPasswordStore(context.getFilesDir(), username,
+				mPasswordStore = new NigoriPasswordStore(context.getFilesDir(), pc.getUsername(),
 						password, pc.getServer(), pc.getPort(),
 						pc.getServerPrefix());
 				// TODO: dynamically create type based on stored parameters

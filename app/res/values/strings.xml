@@ -11,6 +11,8 @@
     <string name="notesLabel">Notes</string>
     <string name="notesDefault">My Notes</string>
     <string name="saveButtonLabel">Save</string>
+    <string name="saveAndUnlockButtonLabel">Save and Unlock</string>
+    <string name="createButtonLabel">Create</string>
     <string name="cancelButtonLabel">Cancel</string>
     <string name="appDescription">Safely store your passwords in the cloud</string>
     <string name="loadingListLabel">Loading Available Passwords…</string>
@@ -22,11 +24,11 @@
     <string name="noPasswordsError">No Passwords</string>
     <string name="editPassword">Edit Password</string>
     <string name="deletePassword">Delete Password</string>
-    <string name="configurations">Configurations</string>
+    <string name="configuration">Configuration</string>
     <string name="serverLabel">Server</string>
     <string name="portLabel">Port</string>
     <string name="serverPrefixLabel">Server Prefix</string>
-    <string name="passgoriLogin">Passgori Login</string>
+    <string name="unlockPassgori">Unlock Passgori</string>
     <string name="unlockLabel">Unlock Password Store</string>
     <string name="history">History</string>
     <string name="date">Date: </string>
@@ -35,5 +37,7 @@
     <string name="backupTo">Backup destination </string>
     <string name="connectingPasswordStore">Connecting to password store</string>
     <string name="restore">Restore</string>
+    <string name="useRemoteStorage">Use remote storage?</string>
+    <string name="editServerDetails">Edit server details</string>
 
 </resources>

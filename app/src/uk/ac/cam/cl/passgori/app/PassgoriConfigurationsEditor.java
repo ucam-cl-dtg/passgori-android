@@ -42,37 +42,32 @@ public class PassgoriConfigurationsEditor extends Activity {
 	private TextView mServerField;
 	private TextView mPortField;
 	private TextView mPrefixField;
-	private Button mSaveButton;
-	private Button mCancelButton;
+	private Button mCreateButton;
+
+  private TextView mPasswordField;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.configurations);
+		setContentView(R.layout.configuration);
 
 		mUsernameField = (TextView) findViewById(R.id.passgoriUsername);
+		mPasswordField = (TextView) findViewById(R.id.passgoriPassword);
 		mServerField = (TextView) findViewById(R.id.passgoriServer);
 		mPortField = (TextView) findViewById(R.id.passgoriPort);
 		mPrefixField = (TextView) findViewById(R.id.passgoriServerPrefix);
-		mSaveButton = (Button) findViewById(R.id.saveButton);
-		mCancelButton = (Button) findViewById(R.id.cancelButton);
+		mCreateButton = (Button) findViewById(R.id.createButton);
 
 		mConfigs = new PassgoriConfigurations(this);
 
-		mSaveButton.setOnClickListener(new View.OnClickListener() {
+		mCreateButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				saveConfig();
+				//TODO(drt24) unlock
 				finish();
 			}
 		});
-
-		mCancelButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-    });
 
 	}
 
