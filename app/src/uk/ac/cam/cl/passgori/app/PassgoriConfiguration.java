@@ -26,7 +26,7 @@ import android.content.SharedPreferences;
  * @author Miltiadis Allamanis
  * 
  */
-public class PassgoriConfigurations {
+public class PassgoriConfiguration {
   /**
    * Preferences name.
    */
@@ -42,7 +42,7 @@ public class PassgoriConfigurations {
    * 
    * @param context the context to get preferences from
    */
-  public PassgoriConfigurations(Context context) {
+  public PassgoriConfiguration(Context context) {
     mSettings = context.getSharedPreferences(PREFS_NAME, 0);
   }
 
@@ -76,6 +76,10 @@ public class PassgoriConfigurations {
    */
   public final String getUsername() {
     return mSettings.getString("passgoriUsername", null);
+  }
+
+  public final boolean getUseRemoteStore() {
+    return mSettings.getBoolean("passgoriUseRemoteStore", true);
   }
 
   /**
@@ -123,6 +127,13 @@ public class PassgoriConfigurations {
     SharedPreferences.Editor editor = mSettings.edit();
 
     editor.putString("passgoriUsername", username);
+    editor.commit();
+  }
+
+  public void setUseRemoteStore(final boolean useRemote) {
+    SharedPreferences.Editor editor = mSettings.edit();
+
+    editor.putBoolean("passgoriUseRemoteStore", useRemote);
     editor.commit();
   }
 

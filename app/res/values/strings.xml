@@ -39,5 +39,9 @@
     <string name="restore">Restore</string>
     <string name="useRemoteStorage">Use remote storage?</string>
     <string name="editServerDetails">Edit server details</string>
+    <string name="welcome">Welcome to Passgori</string>
+    <string name="newUser">New User</string>
+    <string name="haveRemote">I have a remote store</string>
+    <string name="haveBackup">I have a backup</string>
 
 </resources>

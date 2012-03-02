@@ -35,12 +35,12 @@ public class DelayedDummyPasswordStore extends DummyPasswordStore {
 	public static final int MAX_DELAY = 10000;
 
 	@Override
-	public boolean authorize(String username, String password) {
+	public boolean authenticate(String username, String password) {
 		try {
 			Thread.sleep((long) (MAX_DELAY * Math.random()));
 		} catch (InterruptedException e) {
 		}
-		return super.authorize(username, password);
+		return super.authenticate(username, password);
 	}
 
 	@Override

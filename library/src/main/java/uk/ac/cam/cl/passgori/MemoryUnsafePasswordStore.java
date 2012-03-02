@@ -56,7 +56,7 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
 	}
 
 	@Override
-	public boolean authorize(String username, String password) {
+	public boolean authenticate(String username, String password) {
 		mAuthorized = true;
 		return true;
 	}
@@ -150,6 +150,11 @@ public class MemoryUnsafePasswordStore implements IPasswordStore {
       throw new ClassNotFoundException(e.toString());
     }
     ois.close();
+  }
+
+  @Override
+  public boolean createStore(boolean createLocalOnly) throws PasswordStoreException {
+    return true;
   }
 
 }

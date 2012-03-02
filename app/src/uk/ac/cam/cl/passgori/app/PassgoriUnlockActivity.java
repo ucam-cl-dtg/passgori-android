@@ -18,10 +18,7 @@
 package uk.ac.cam.cl.passgori.app;
 
 import uk.ac.cam.cl.passgori.PasswordStoreException;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,7 +41,7 @@ public class PassgoriUnlockActivity extends AbstractLoadingActivity {
   private void displayListPasswordActivity() {
     try {
       EditText passwordField = (EditText) findViewById(R.id.passgoriPassword);
-      binder.createStore(passwordField.getText().toString());
+      binder.connectStore(passwordField.getText().toString());
 
       Intent intent = new Intent(PassgoriUnlockActivity.this, PassgoriListPasswordsActivity.class);
       startActivityForResult(intent, 0);
@@ -63,26 +60,7 @@ public class PassgoriUnlockActivity extends AbstractLoadingActivity {
    * Create the service and connect
    */
   private void connectAndLogin() {
-
-    if (!connected) {
-      mLoadingDialog = ProgressDialog.show(this, "", "Connecting. Please wait...", true);
-      new AsyncTask<Object, Object, Object>() {// don't want to do this on the UI thread
-
-        @Override
-        protected Object doInBackground(Object... arg0) {
-          // Bind to PasswordStoreService
-          Intent intent = new Intent(PassgoriUnlockActivity.this, PasswordStoreService.class);
-
-          if (!getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE)) {
-            runOnUiThread(new FailureNotification("Failed to create internal service"));
-          }
-          return null;
-        }
-      }.execute();
-
-    } else {
-      displayListPasswordActivity();
-    }
+    connectAndGo();
   }
 
   @Override
@@ -132,7 +110,8 @@ public class PassgoriUnlockActivity extends AbstractLoadingActivity {
     switch (item.getItemId()) {
       case R.id.configure:
         Intent configIntent =
-            new Intent(PassgoriUnlockActivity.this, PassgoriConfigurationsEditor.class);
+            new Intent(PassgoriUnlockActivity.this, PassgoriConfigurationEditorActivity.class);
+        configIntent.setAction(PassgoriConfigurationEditorActivity.CONFIGURE);
         startActivityForResult(configIntent, 0);
         return true;
 

@@ -35,6 +35,11 @@
             android:screenOrientation="nosensor" >
         </activity>
         <activity
+            android:name=".FirstRunActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="nosensor" >
+        </activity>
+        <activity
             android:name="PassgoriPresentPasswordsActivity"
             android:configChanges="orientation"
             android:screenOrientation="nosensor" >
@@ -45,7 +50,7 @@
             android:screenOrientation="nosensor" >
         </activity>
         <activity
-            android:name="PassgoriConfigurationsEditor"
+            android:name=".PassgoriConfigurationEditorActivity"
             android:configChanges="orientation"
             android:screenOrientation="nosensor" >
         </activity>

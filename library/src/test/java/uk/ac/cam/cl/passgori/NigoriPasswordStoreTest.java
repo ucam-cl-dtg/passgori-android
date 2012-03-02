@@ -75,6 +75,7 @@ public class NigoriPasswordStoreTest {
 	  NigoriPasswordStoreTest instance = new NigoriPasswordStoreTest();
 	  instance.createStore();
 	  instance.destroyStore();
+	  instance.deleteDatabase();
 	}
 
 	@Before
@@ -84,6 +85,7 @@ public class NigoriPasswordStoreTest {
 	  ps = new NigoriPasswordStore(je, TEST_USERNAME,
         TEST_PASSWORD, TEST_SERVER, TEST_SERVER_PORT,
         TEST_SERVER_PREFIX);
+	  ps.createStore(false);
 	}
 
 	@After
@@ -265,10 +267,13 @@ public class NigoriPasswordStoreTest {
     ps.storePassword(tss);
 
     File backupFile = new File("test-backup.bak");
+    backupFile.delete();
+    backupFile.createNewFile();
     backupFile.deleteOnExit();
     ps.backup(new FileOutputStream(backupFile), TEST_PASSWORD);
     ps.destroyStore();
-    ps.authorize(TEST_USERNAME, TEST_PASSWORD);
+    ps.createStore(false);
+    assertTrue(ps.authenticate(TEST_USERNAME, TEST_PASSWORD));
     ps.restore(new FileInputStream(backupFile), TEST_PASSWORD);
 
     Password tpr = ps.retrivePassword(TEST_PASSWORD);

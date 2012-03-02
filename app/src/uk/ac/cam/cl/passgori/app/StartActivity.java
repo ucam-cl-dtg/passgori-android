@@ -11,11 +11,11 @@ public class StartActivity extends Activity {
     super.onCreate(savedInstanceState);
     finish();
     // TODO(drt24) deal with the other cases
-    PassgoriConfigurations pc = new PassgoriConfigurations(this);
+    PassgoriConfiguration pc = new PassgoriConfiguration(this);
 
     if (!pc.isConfigured()) {// If we are not already configured
-      Intent unlock = new Intent(this, PassgoriConfigurationsEditor.class);
-      startActivity(unlock);
+      Intent firstRun = new Intent(this, FirstRunActivity.class);
+      startActivity(firstRun);
     } else {
       Intent unlock = new Intent(this, PassgoriUnlockActivity.class);
       startActivity(unlock);

@@ -47,7 +47,7 @@ public interface IPasswordStore {
 	 * @return true if authorization process has succeeded
 	 * @throws PasswordStoreException
 	 */
-	public boolean authorize(final String username, final String password)
+	public boolean authenticate(final String username, final String password)
 			throws PasswordStoreException;
 
 	/**
@@ -128,4 +128,6 @@ public interface IPasswordStore {
    * @throws UnauthorisedException 
    */
   public void restore(InputStream input, String password) throws IOException, NigoriCryptographyException, ClassNotFoundException, UnauthorisedException;
+  
+  boolean createStore(boolean createLocalOnly) throws PasswordStoreException;
 }
