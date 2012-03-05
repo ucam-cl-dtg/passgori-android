@@ -84,7 +84,7 @@ public abstract class AbstractLoadingActivity extends Activity {
   };
 
   /**
-   * Run on connection or when {@link #connectAndGo()} is run and already connected
+   * Run on connection or when {@link #connect()} is run and already connected
    * 
    * @throws PasswordStoreException
    */
@@ -94,8 +94,8 @@ public abstract class AbstractLoadingActivity extends Activity {
    * Connect to the {@link PaswordStoreService} if not already connected but if already connected
    * run {@link #onConnected()}
    */
-  protected void connectAndGo() {
-    Log.d(this.getClass().getCanonicalName(), "Running connectAndGo");
+  protected void connect() {
+    Log.d(this.getClass().getCanonicalName(), "Running connect");
     if (!connected) {
       mLoadingDialog = ProgressDialog.show(this, "", "Connecting. Please wait...", true);
       new AsyncTask<Object, Object, Object>() {// don't want to do this on the UI thread

@@ -60,7 +60,7 @@ public class PassgoriUnlockActivity extends AbstractLoadingActivity {
    * Create the service and connect
    */
   private void connectAndLogin() {
-    connectAndGo();
+    connect();
   }
 
   @Override

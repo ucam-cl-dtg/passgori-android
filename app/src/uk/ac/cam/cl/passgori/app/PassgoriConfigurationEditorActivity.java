@@ -100,7 +100,7 @@ public class PassgoriConfigurationEditorActivity extends AbstractLoadingActivity
       @Override
       public void onClick(View v) {
         saveConfig();
-        connectAndGo();
+        connect();
       }
     });
 

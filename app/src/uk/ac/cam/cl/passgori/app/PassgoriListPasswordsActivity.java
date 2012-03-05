@@ -137,7 +137,7 @@ public class PassgoriListPasswordsActivity extends AbstractLoadingActivity {
   @Override
   protected void onStart() {
     super.onStart();
-    connectAndGo();
+    connect();
   }
 
   @Override
