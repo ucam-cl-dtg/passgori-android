@@ -56,7 +56,9 @@ public class PasswordStoreService extends Service {
     }
 
     public void createStore(boolean localOnly) throws PasswordStoreException {
-      mPasswordStore.createStore(localOnly);
+      if (!mPasswordStore.createStore(localOnly)) {
+        throw new PasswordStoreException("Store not successfully created");
+      }
     }
 
     /**

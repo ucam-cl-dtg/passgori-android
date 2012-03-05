@@ -269,7 +269,7 @@ public class NigoriPasswordStore implements IPasswordStore {
     try {
       if (createLocalOnly) {
 
-        return mLocalNigoriStore.register();
+        return mLocalNigoriStore.register() && (mRemoteNigoriStore != null) ? mRemoteNigoriStore.authenticate() : true;
 
       } else {
         return mMigoriStore.register();
