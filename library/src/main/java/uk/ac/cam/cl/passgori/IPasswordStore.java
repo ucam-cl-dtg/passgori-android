@@ -27,10 +27,6 @@ import com.google.nigori.common.Revision;
 import com.google.nigori.common.UnauthorisedException;
 
 /**
- * 
- */
-
-/**
  * An interface for password store objects.
  * 
  * @author Miltiadis Allamanis

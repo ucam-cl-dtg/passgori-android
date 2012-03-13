@@ -14,6 +14,9 @@
 
 package uk.ac.cam.cl.passgori;
 
+import static com.google.nigori.common.Util.checkPassword;
+import static com.google.nigori.common.Util.checkUsername;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,9 +53,6 @@ import com.google.nigori.server.JEDatabase;
  */
 public class NigoriPasswordStore implements IPasswordStore {
 
-  private static final int MIN_PASSWORD_LENGTH = 8;
-  private static final String SHORT_PASSWORD = "Password too short, must be at least "
-      + MIN_PASSWORD_LENGTH;
   /**
    * The Nigori client instance.
    */
@@ -66,13 +66,13 @@ public class NigoriPasswordStore implements IPasswordStore {
    */
   private final String mUserName;
 
-  //private final String mServerPrefix;
+  // private final String mServerPrefix;
 
-  //private final String mServerURI;
+  // private final String mServerURI;
 
-  //private final int mPortNumber;
+  // private final int mPortNumber;
 
-  //private File mDir;
+  // private File mDir;
 
   /**
    * Nigori Password Store Constructor, for syncing local and remote store
@@ -89,16 +89,15 @@ public class NigoriPasswordStore implements IPasswordStore {
   public NigoriPasswordStore(File dir, final String username, final String password,
       final String serverURI, final int portNumber, final String serverPrefix)
       throws PasswordStoreException {
-    if (password.length() < MIN_PASSWORD_LENGTH) {
-      throw new PasswordStoreException(SHORT_PASSWORD);
-    }
-    File mDir = dir;
-    int mPortNumber = portNumber;
-    String mServerPrefix = serverPrefix;
-    String mServerURI = serverURI;
-    mUserName = username;
-
     try {
+      checkPassword(password);
+      checkUsername(username);
+      File mDir = dir;
+      int mPortNumber = portNumber;
+      String mServerPrefix = serverPrefix;
+      String mServerURI = serverURI;
+      mUserName = username;
+
       File jeDir = new File(mDir, "je-database/");
       if (!jeDir.exists()) {
         if (!jeDir.mkdir()) {
@@ -117,6 +116,8 @@ public class NigoriPasswordStore implements IPasswordStore {
       throw new PasswordStoreException(e);
     } catch (NigoriCryptographyException e) {
       throw new PasswordStoreException(e);
+    } catch (UnauthorisedException e) {
+      throw new PasswordStoreException(e);
     }
   }
 
@@ -130,14 +131,13 @@ public class NigoriPasswordStore implements IPasswordStore {
    */
   public NigoriPasswordStore(File dir, final String username, final String password)
       throws PasswordStoreException {
-    if (password.length() < MIN_PASSWORD_LENGTH) {
-      throw new PasswordStoreException(SHORT_PASSWORD);
-    }
-    File mDir = dir;
-    mUserName = username;
-
     boolean authenticated = false;
     try {
+      checkPassword(password);
+      checkUsername(username);
+      File mDir = dir;
+      mUserName = username;
+
       File jeDir = new File(mDir, "je-database/");
       if (!jeDir.exists()) {
         if (!jeDir.mkdir()) {
@@ -157,6 +157,8 @@ public class NigoriPasswordStore implements IPasswordStore {
       throw new PasswordStoreException(e);
     } catch (NigoriCryptographyException e) {
       throw new PasswordStoreException(e);
+    } catch (UnauthorisedException e) {
+      throw new PasswordStoreException(e);
     }
     if (!authenticated) {
       throw new PasswordStoreException("Could not authenticate to the store");
@@ -165,15 +167,17 @@ public class NigoriPasswordStore implements IPasswordStore {
 
   @Override
   public boolean authenticate(String username, String password) throws PasswordStoreException {
-    if (password.length() < MIN_PASSWORD_LENGTH) {
-      throw new PasswordStoreException(SHORT_PASSWORD);
-    }
 
     try {
+      checkPassword(password);
+      checkUsername(username);
+
       return mMigoriStore.authenticate();
     } catch (IOException e) {
       throw new PasswordStoreException(e);
     } catch (NigoriCryptographyException e) {
+      throw new PasswordStoreException(e);
+    } catch (UnauthorisedException e) {
       throw new PasswordStoreException(e);
     }
   }
@@ -269,7 +273,8 @@ public class NigoriPasswordStore implements IPasswordStore {
     try {
       if (createLocalOnly) {
 
-        return mLocalNigoriStore.register() && (mRemoteNigoriStore != null) ? mRemoteNigoriStore.authenticate() : true;
+        return mLocalNigoriStore.register() && (mRemoteNigoriStore != null) ? mRemoteNigoriStore
+            .authenticate() : true;
 
       } else {
         return mMigoriStore.register();
@@ -315,14 +320,13 @@ public class NigoriPasswordStore implements IPasswordStore {
   @Override
   public void backup(OutputStream output, String password) throws IOException,
       NigoriCryptographyException, UnauthorisedException {
-    if (password.length() < MIN_PASSWORD_LENGTH) {
-      throw new UnauthorisedException(SHORT_PASSWORD);
-    }
+    checkPassword(password);
 
     HashMapDatabase database = new HashMapDatabase();
     NigoriDatastore backupStore =
         new CryptoNigoriDatastore(new DatabaseNigoriProtocol(database), mUserName, password,
             "backup");
+
     if (!backupStore.register()) {
       throw new UnauthorisedException("Could not register with backup server");
     }
@@ -332,14 +336,13 @@ public class NigoriPasswordStore implements IPasswordStore {
     oos.writeObject(database);
     oos.flush();
     oos.close();
+
   }
 
   @Override
   public void restore(InputStream input, String password) throws IOException,
       NigoriCryptographyException, ClassNotFoundException, UnauthorisedException {
-    if (password.length() < MIN_PASSWORD_LENGTH) {
-      throw new UnauthorisedException(SHORT_PASSWORD);
-    }
+    checkPassword(password);
 
     ObjectInputStream ois = new ObjectInputStream(input);
 
@@ -350,6 +353,7 @@ public class NigoriPasswordStore implements IPasswordStore {
         new SyncingNigoriDatastore(mNigoriStore, new CryptoNigoriDatastore(
             new DatabaseNigoriProtocol(database), mUserName, password, "backup"));
     syncing.syncAll();
+
   }
 
 }
