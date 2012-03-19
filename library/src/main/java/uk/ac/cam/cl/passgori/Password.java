@@ -16,7 +16,8 @@
  
 package uk.ac.cam.cl.passgori;
 
-import java.io.UnsupportedEncodingException;
+import static com.google.nigori.common.MessageLibrary.bytesToString;
+
 import java.util.List;
 
 import com.google.nigori.common.MessageLibrary;
@@ -38,7 +39,6 @@ public class Password implements Comparable<Password> {
 	private final String mNotes;
 	private final long mGeneratedAt;
 
-	private static final String CHARSET = MessageLibrary.CHARSET;
 	/**
 	 * A copy constructor.
 	 * 
@@ -79,13 +79,9 @@ public class Password implements Comparable<Password> {
       List<byte[]> bytess = Util.splitBytes(bytes);
 
       mId = id;
-      try {
-        mUsername = new String(bytess.get(0), CHARSET);
-        mPassword = new String(bytess.get(1), CHARSET);
-        mNotes = new String(bytess.get(2), CHARSET);
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);
-      }
+      mUsername = bytesToString(bytess.get(0));
+      mPassword = bytesToString(bytess.get(1));
+      mNotes = bytesToString(bytess.get(2));
       mGeneratedAt = Util.bin2long(bytess.get(3));
     } catch (IllegalArgumentException e) {
       throw new PasswordStoreException("Malformed password", e);

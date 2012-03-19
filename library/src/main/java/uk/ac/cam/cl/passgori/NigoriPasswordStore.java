@@ -26,6 +26,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.nigori.client.ComparableMerger;
+import com.google.nigori.client.ComparableMerger.ConversionException;
 import com.google.nigori.client.CryptoNigoriDatastore;
 import com.google.nigori.client.DAG;
 import com.google.nigori.client.HashMigoriDatastore;
@@ -53,6 +55,28 @@ import com.google.nigori.server.JEDatabase;
  */
 public class NigoriPasswordStore implements IPasswordStore {
 
+  private static final ComparableMerger<Password> passwordMerger = new ComparableMerger<Password>(new ComparableMerger.Converter<Password>(){
+
+    @Override
+    public Password fromBytes(Index index, byte[] value) throws ConversionException {
+      try {
+        return new Password(index.toString(),value);
+      } catch (PasswordStoreException e) {
+        throw new ConversionException(e);
+      }
+    }
+
+    @Override
+    public Password fromLatest(Password from) {
+      return new Password(from.getId(),from.getUsername(),from.getPassword(),from.getNotes());
+    }
+
+    @Override
+    public byte[] toBytes(Password from) {
+      return from.toBytes();
+    }
+    
+  });
   /**
    * The Nigori client instance.
    */
@@ -203,7 +227,7 @@ public class NigoriPasswordStore implements IPasswordStore {
   public boolean removePassword(String aId) throws PasswordStoreException {
     try {
       Index index = new Index(aId);
-      RevValue current = mMigoriStore.getMerging(index, new PasswordMerger());
+      RevValue current = mMigoriStore.getMerging(index, passwordMerger);
       if (current != null) {
         return mMigoriStore.removeIndex(index, current.getRevision());
       } else {
@@ -222,7 +246,7 @@ public class NigoriPasswordStore implements IPasswordStore {
   @Override
   public Password retrivePassword(String aId) throws PasswordStoreException {
     try {
-      RevValue current = mMigoriStore.getMerging(new Index(aId), new PasswordMerger());
+      RevValue current = mMigoriStore.getMerging(new Index(aId), passwordMerger);
       if (current == null) {
         return null;
       }
@@ -253,7 +277,7 @@ public class NigoriPasswordStore implements IPasswordStore {
   public boolean storePassword(Password aPassword) throws PasswordStoreException {
     try {
       Index index = new Index(aPassword.getId());
-      RevValue current = mMigoriStore.getMerging(index, new PasswordMerger());
+      RevValue current = mMigoriStore.getMerging(index, passwordMerger);
       if (current != null) {
         mMigoriStore.put(index, aPassword.toBytes(), current);
       } else {
