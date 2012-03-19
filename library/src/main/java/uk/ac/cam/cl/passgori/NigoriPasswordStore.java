@@ -129,7 +129,7 @@ public class NigoriPasswordStore implements IPasswordStore {
         }
       }
       mLocalNigoriStore =
-          new CryptoNigoriDatastore(new DatabaseNigoriProtocol(new JEDatabase(jeDir)), username,
+          new CryptoNigoriDatastore(new DatabaseNigoriProtocol(JEDatabase.getInstance(jeDir)), username,
               password, "je");
       mRemoteNigoriStore =
           new CryptoNigoriDatastore(mServerURI, mPortNumber, mServerPrefix, username, password);
@@ -169,7 +169,7 @@ public class NigoriPasswordStore implements IPasswordStore {
         }
       }
       mLocalNigoriStore =
-          new CryptoNigoriDatastore(new DatabaseNigoriProtocol(new JEDatabase(jeDir)), username,
+          new CryptoNigoriDatastore(new DatabaseNigoriProtocol(JEDatabase.getInstance(jeDir)), username,
               password, "je");
       mRemoteNigoriStore = null;
       mNigoriStore = mLocalNigoriStore;
