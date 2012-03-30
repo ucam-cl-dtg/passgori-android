@@ -18,6 +18,7 @@
 package uk.ac.cam.cl.passgori.app;
 
 import uk.ac.cam.cl.passgori.PasswordStoreException;
+import uk.ac.cam.cl.passgori.app.PassgoriConfigurationEditorActivity.MODE;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -111,7 +112,7 @@ public class PassgoriUnlockActivity extends AbstractLoadingActivity {
       case R.id.configure:
         Intent configIntent =
             new Intent(PassgoriUnlockActivity.this, PassgoriConfigurationEditorActivity.class);
-        configIntent.setAction(PassgoriConfigurationEditorActivity.CONFIGURE);
+        configIntent.setAction(MODE.CONFIGURE.string);
         startActivityForResult(configIntent, 0);
         return true;
 

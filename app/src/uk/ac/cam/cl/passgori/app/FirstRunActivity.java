@@ -1,5 +1,6 @@
 package uk.ac.cam.cl.passgori.app;
 
+import uk.ac.cam.cl.passgori.app.PassgoriConfigurationEditorActivity.MODE;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,7 +25,7 @@ public class FirstRunActivity extends Activity {
       public void onClick(View v) {
         finish();
         Intent configure = new Intent(FirstRunActivity.this, PassgoriConfigurationEditorActivity.class);
-        configure.setAction(PassgoriConfigurationEditorActivity.NEW_USER);
+        configure.setAction(MODE.NEW_USER.string);
         startActivity(configure);
       }
     });
@@ -35,7 +36,7 @@ public class FirstRunActivity extends Activity {
       public void onClick(View v) {
         finish();
         Intent configure = new Intent(FirstRunActivity.this, PassgoriConfigurationEditorActivity.class);
-        configure.setAction(PassgoriConfigurationEditorActivity.EXISTING_REMOTE);
+        configure.setAction(MODE.EXISTING_REMOTE.string);
         startActivity(configure);
       }
     });

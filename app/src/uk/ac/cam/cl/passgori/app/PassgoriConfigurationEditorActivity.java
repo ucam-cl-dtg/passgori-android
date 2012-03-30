@@ -34,13 +34,14 @@ import android.widget.Toast;
  */
 public class PassgoriConfigurationEditorActivity extends AbstractLoadingActivity {
 
-  private enum MODE {
-    NEW_USER, EXISTING_REMOTE, CONFIGURE
-  }
+  public enum MODE {
+    NEW_USER("newUser"), EXISTING_REMOTE("haveRemote"), CONFIGURE("configure");
+    public final String string;
 
-  public static final String NEW_USER = "newUser";
-  public static final String EXISTING_REMOTE = "haveRemote";
-  public static final String CONFIGURE = "configure";
+    private MODE(String str) {
+      this.string = str;
+    }
+  }
 
   /**
    * The configurations object.
@@ -64,11 +65,11 @@ public class PassgoriConfigurationEditorActivity extends AbstractLoadingActivity
     setContentView(R.layout.configuration);
 
     String action = getIntent().getAction();
-    if (EXISTING_REMOTE.equals(action)) {
+    if (MODE.EXISTING_REMOTE.equals(action)) {
       mode = MODE.EXISTING_REMOTE;
-    } else if (NEW_USER.equals(action)) {
+    } else if (MODE.NEW_USER.equals(action)) {
       mode = MODE.NEW_USER;
-    } else if (CONFIGURE.equals(action)) {
+    } else if (MODE.CONFIGURE.equals(action)) {
       mode = MODE.CONFIGURE;
     } else {
       mode = MODE.CONFIGURE;
@@ -88,9 +89,8 @@ public class PassgoriConfigurationEditorActivity extends AbstractLoadingActivity
       case EXISTING_REMOTE:
         //mCreateButton.setText(getString(R.string.));
         break;
-    }
-    if (MODE.CONFIGURE == mode) {
-      
+      case NEW_USER:
+        break;// correct text already set
     }
 
     mConfigs = new PassgoriConfiguration(this);

@@ -18,6 +18,7 @@ import java.util.List;
 
 import uk.ac.cam.cl.passgori.IPasswordStore;
 import uk.ac.cam.cl.passgori.PasswordStoreException;
+import uk.ac.cam.cl.passgori.app.PassgoriConfigurationEditorActivity.MODE;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -157,7 +158,7 @@ public class PassgoriListPasswordsActivity extends AbstractLoadingActivity {
 
       case R.id.passgoriConfigure:
         Intent configIntent = new Intent(this, PassgoriConfigurationEditorActivity.class);
-        configIntent.setAction(PassgoriConfigurationEditorActivity.CONFIGURE);
+        configIntent.setAction(MODE.CONFIGURE.string);
         startActivityForResult(configIntent, 0);
         return true;
 
