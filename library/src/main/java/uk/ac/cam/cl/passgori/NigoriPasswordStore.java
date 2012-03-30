@@ -293,6 +293,7 @@ public class NigoriPasswordStore implements IPasswordStore {
     return true;
   }
 
+  @Override
   public boolean createStore(boolean createLocalOnly) throws PasswordStoreException {
     try {
       if (createLocalOnly) {

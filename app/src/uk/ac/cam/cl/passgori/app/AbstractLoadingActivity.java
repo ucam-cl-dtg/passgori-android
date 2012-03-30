@@ -74,6 +74,7 @@ public abstract class AbstractLoadingActivity extends Activity {
       unregisterReceiver(mReceiver);
       redirectToUnlock();
     }
+    @Override
     public void finalize() throws Throwable {
       binder = null;
       connected = false;
