@@ -59,6 +59,8 @@ public class PassgoriConfigurationEditorActivity extends AbstractLoadingActivity
   private CheckBox mUseRemoteStoreCheck;
   private MODE mode;
 
+  private boolean connecting = false;
+
   @Override
   public void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -100,6 +102,8 @@ public class PassgoriConfigurationEditorActivity extends AbstractLoadingActivity
       @Override
       public void onClick(View v) {
         saveConfig();
+        mConfigs.setFailureDuringConnect(false);// we have not yet failed this time
+        connecting = true;
         connect();
       }
     });
@@ -129,6 +133,9 @@ public class PassgoriConfigurationEditorActivity extends AbstractLoadingActivity
   @Override
   protected void displayError(String errorMessage) {
     Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+    if (connecting){
+      mConfigs.setFailureDuringConnect(true);
+    }
   }
 
   @Override
@@ -150,5 +157,6 @@ public class PassgoriConfigurationEditorActivity extends AbstractLoadingActivity
     startActivity(list);
 
     finish();
+    connecting  = false;
   }
 }

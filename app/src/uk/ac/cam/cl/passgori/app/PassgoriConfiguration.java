@@ -81,6 +81,9 @@ public class PassgoriConfiguration {
   public final boolean getUseRemoteStore() {
     return mSettings.getBoolean("passgoriUseRemoteStore", true);
   }
+  public final boolean getFailureDuringConnect() {
+    return mSettings.getBoolean("passgoriFailureDuringConnect", false);
+  }
 
   /**
    * Stores the port configuration.
@@ -137,8 +140,16 @@ public class PassgoriConfiguration {
     editor.commit();
   }
 
+  public void setFailureDuringConnect(boolean failure) {
+    SharedPreferences.Editor editor = mSettings.edit();
+
+    editor.putBoolean("passgoriFailureDuringConnect", failure);
+    editor.commit();
+
+  }
+
   public boolean isConfigured() {
     String username = getUsername();
-    return !(username == null || username.length() == 0);
+    return !(username == null || username.length() == 0 || getFailureDuringConnect());
   }
 }
