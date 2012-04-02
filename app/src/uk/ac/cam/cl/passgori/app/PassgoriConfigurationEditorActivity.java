@@ -65,11 +65,11 @@ public class PassgoriConfigurationEditorActivity extends AbstractLoadingActivity
     setContentView(R.layout.configuration);
 
     String action = getIntent().getAction();
-    if (MODE.EXISTING_REMOTE.equals(action)) {
+    if (MODE.EXISTING_REMOTE.string.equals(action)) {
       mode = MODE.EXISTING_REMOTE;
-    } else if (MODE.NEW_USER.equals(action)) {
+    } else if (MODE.NEW_USER.string.equals(action)) {
       mode = MODE.NEW_USER;
-    } else if (MODE.CONFIGURE.equals(action)) {
+    } else if (MODE.CONFIGURE.string.equals(action)) {
       mode = MODE.CONFIGURE;
     } else {
       mode = MODE.CONFIGURE;
