@@ -55,6 +55,7 @@ import com.google.nigori.server.JEDatabase;
  */
 public class NigoriPasswordStore implements IPasswordStore {
 
+  private static final String USERNAME_PREFIX = "passgori-password-store:";
   private static final ComparableMerger<Password> passwordMerger = new ComparableMerger<Password>(new ComparableMerger.Converter<Password>(){
 
     @Override
@@ -120,7 +121,7 @@ public class NigoriPasswordStore implements IPasswordStore {
       int mPortNumber = portNumber;
       String mServerPrefix = serverPrefix;
       String mServerURI = serverURI;
-      mUserName = username;
+      mUserName = USERNAME_PREFIX + username;// So that we end up with a different key for different applications
 
       File jeDir = new File(mDir, "je-database/");
       if (!jeDir.exists()) {
@@ -129,10 +130,10 @@ public class NigoriPasswordStore implements IPasswordStore {
         }
       }
       mLocalNigoriStore =
-          new CryptoNigoriDatastore(new DatabaseNigoriProtocol(JEDatabase.getInstance(jeDir)), username,
+          new CryptoNigoriDatastore(new DatabaseNigoriProtocol(JEDatabase.getInstance(jeDir)), mUserName,
               password, "je");
       mRemoteNigoriStore =
-          new CryptoNigoriDatastore(mServerURI, mPortNumber, mServerPrefix, username, password);
+          new CryptoNigoriDatastore(mServerURI, mPortNumber, mServerPrefix, mUserName, password);
       mNigoriStore = new LocalFirstSyncingNigoriDatastore(mLocalNigoriStore, mRemoteNigoriStore);
       mMigoriStore = new HashMigoriDatastore(mNigoriStore);
 
@@ -160,7 +161,7 @@ public class NigoriPasswordStore implements IPasswordStore {
       checkPassword(password);
       checkUsername(username);
       File mDir = dir;
-      mUserName = username;
+      mUserName = USERNAME_PREFIX + username;
 
       File jeDir = new File(mDir, "je-database/");
       if (!jeDir.exists()) {
@@ -169,7 +170,7 @@ public class NigoriPasswordStore implements IPasswordStore {
         }
       }
       mLocalNigoriStore =
-          new CryptoNigoriDatastore(new DatabaseNigoriProtocol(JEDatabase.getInstance(jeDir)), username,
+          new CryptoNigoriDatastore(new DatabaseNigoriProtocol(JEDatabase.getInstance(jeDir)), mUserName,
               password, "je");
       mRemoteNigoriStore = null;
       mNigoriStore = mLocalNigoriStore;
@@ -192,7 +193,7 @@ public class NigoriPasswordStore implements IPasswordStore {
   @Override
   public boolean authenticate(String username, String password) throws PasswordStoreException {
 
-    try {
+    try {//TODO(drt24): we don't actually use the username and password which seems rather odd.
       checkPassword(password);
       checkUsername(username);
 
