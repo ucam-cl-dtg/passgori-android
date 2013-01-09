@@ -69,7 +69,7 @@ public class NigoriPasswordStoreTest {
 	private final int TEST_SERVER_PORT = LOCAL_TESTING ? 8888 : 443;
 	private final String TEST_SERVER_PREFIX = "nigori";
 	private final File je = new File("je-test-dir/");
-	private static final int REPEAT = 20;
+	private static final int REPEAT = 10;
 
 	@BeforeClass
 	public static void ensureClean() throws PasswordStoreException {
